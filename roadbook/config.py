@@ -33,7 +33,9 @@ DEFAUTS: dict[str, Any] = {
         "stabilite_m": 30.0,  # longueur des tronçons avant/après servant à mesurer l'angle
         "seuil_virage_deg": 20.0,
         "fusion_virages_m": 25.0,
-        "tranches_angle_deg": [45.0, 90.0, 135.0],  # légère | normale | franche | épingle
+        # bornes (°) : légère <= 45 < normale <= 105 < franche <= 150 < épingle.
+        # 105 et non 90 : un carrefour à angle droit mesuré à 91° doit rester « AD ».
+        "tranches_angle_deg": [45.0, 105.0, 150.0],
         "demi_tour_deg": 165.0,
         "cap_distance_m": 100.0,  # cap de sortie mesuré sur cette distance
         "rappel_km": 0.0,  # case « TD » de rappel sur les longues lignes droites (0 = aucune)
