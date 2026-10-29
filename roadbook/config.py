@@ -62,6 +62,7 @@ DEFAUTS: dict[str, Any] = {
         "decimales_partiel": 1,
         "separateur_decimal": ",",
         "textes": "abrege",  # abrege (AD, AG, TD...) | complet
+        "majuscules": True,  # commentaires en capitales, comme les road books de raid
         "afficher_cap": True,
         "afficher_pente": False,
         "couleurs": True,

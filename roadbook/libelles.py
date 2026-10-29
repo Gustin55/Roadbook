@@ -73,16 +73,18 @@ TYPES_POI = {
     "arrivee": "Arrivée",
 }
 
-LEGENDE_ABREVIATIONS = [
-    ("TC / Total", "Compteur kilométrique cumulé (remis à zéro au départ)"),
-    ("Partiel", "Distance depuis la case précédente"),
-    ("AD / AG", "À droite / à gauche"),
-    ("TD", "Tout droit"),
-    ("LÉG.", "Légèrement (virage de moins de 45°)"),
-    ("FORT", "Virage de plus de 90°"),
-    ("RP", "Rond-point"),
-    ("C.235", "Cap à suivre en degrés (boussole) après la case"),
-    ("PP", "Piste principale"),
-    ("SVE / TJS", "Suivre / toujours"),
-    ("! à !!!", "Danger, de modéré à très dangereux"),
-]
+def legende_abreviations(tranches: list[float]) -> list[tuple[str, str]]:
+    legere, normale, franche = (f"{t:g}°" for t in tranches)
+    return [
+        ("Total", "Compteur kilométrique cumulé (remis à zéro au départ de l'étape)"),
+        ("Partiel", "Distance depuis la case précédente"),
+        ("AD / AG", "À droite / à gauche"),
+        ("TD", "Tout droit"),
+        ("LÉG.", f"Légèrement (virage jusqu'à {legere})"),
+        ("FORT", f"Virage fermé (de {normale} à {franche})"),
+        ("ÉPINGLE", f"Virage de plus de {franche}"),
+        ("RP", "Rond-point"),
+        ("C.235", "Cap boussole à suivre après la case (degrés)"),
+        ("PP / SVE / TJS", "Piste principale / suivre / toujours"),
+        ("! à !!!", "Danger, de modéré à très dangereux"),
+    ]

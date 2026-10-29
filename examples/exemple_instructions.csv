@@ -1,0 +1,24 @@
+﻿numero;etape;type;km_total;km_partiel;km_suivante;description;angle_deg;classe;cap_sortie_deg;notes;poi;lat;lon;altitude_m;pente_pct;heure_estimee;remarques
+1;E1 - Erfoud boucle nord;depart;0,000;0,000;2,246;DÉPART;;;172;;;31,430007;-4,229996;850;;07:30;
+2;E1 - Erfoud boucle nord;poi;2,246;2,246;0,996;TD;;;195;Village : ralentir, enfants;info;31,410512;-4,227418;871;0,9;07:32;
+3;E1 - Erfoud boucle nord;virage;3,242;0,996;2,668;AD;89;normale;285;;;31,402031;-4,230131;879;0,8;07:34;
+4;E1 - Erfoud boucle nord;rond_point;5,910;2,668;0,977;RP SORTIE TD;1;;285;Tampon équipage;controle:CS1;31,408192;-4,256712;896;0,7;07:37;n° de sortie non déterminable sans carte : à préciser si besoin
+5;E1 - Erfoud boucle nord;virage;6,887;0,977;3,264;LÉG. AG;-31;legere;250;;;31,410282;-4,266302;902;0,5;07:39;
+6;E1 - Erfoud boucle nord;virage;10,152;3,264;0,420;AG;-95;normale;155;;;31,400389;-4,298075;910;0,3;07:43;
+7;E1 - Erfoud boucle nord;virage;10,572;0,420;0,618;AD FORT;105;franche;265;;;31,397014;-4,296305;910;0,0;07:44;
+8;E1 - Erfoud boucle nord;poi;11,190;0,618;2,773;TD;;;265;Oued, passage cassant;danger;31,396503;-4,302656;910;-0,0;07:44;
+9;E1 - Erfoud boucle nord;poi;13,964;2,773;1,936;TD;;;265;Station Ziz, dernier carburant avant 120 km;ravitaillement;31,394371;-4,331212;904;-0,2;07:48;
+10;E1 - Erfoud boucle nord;virage;15,900;1,936;1,560;AD;91;normale;355;;;31,392966;-4,351089;894;-0,5;07:51;
+11;E1 - Erfoud boucle nord;virage;17,459;1,560;1,133;ÉPINGLE AG;-150;epingle;205;;controle:CS2;31,406582;-4,352703;884;-0,7;07:53;
+12;E1 - Erfoud boucle nord;virage;18,592;1,133;2,044;AD;59;normale;266;;;31,397554;-4,357689;875;-0,8;07:54;
+13;E1 - Erfoud boucle nord;arrivee;20,636;2,044;;ARRIVÉE;;;;;;31,395951;-4,378745;858;-0,8;07:57;
+1;E2 - Liaison sud;depart;0,000;0,000;1,530;DÉPART;;;200;;;31,395946;-4,378743;900;;07:30;
+2;E2 - Liaison sud;virage;1,530;1,530;0,862;AG;-80;normale;121;;;31,383180;-4,384090;931;2,0;07:32;
+3;E2 - Liaison sud;poi;2,391;0,862;2,459;TD;;;118;Voie ferrée;passage_niveau;31,379349;-4,376353;947;1,9;07:33;
+4;E2 - Liaison sud;rond_point;4,850;2,459;0,829;RP SORTIE AG;-92;;360;;;31,372876;-4,353113;990;1,7;07:36;n° de sortie non déterminable sans carte : à préciser si besoin
+5;E2 - Liaison sud;poi;5,679;0,829;2,299;TD;;;1;Contrôle de passage;controle:CP3;31,379814;-4,353004;1001;1,4;07:37;
+6;E2 - Liaison sud;virage;7,977;2,299;0,830;LÉG. AD;40;legere;46;;;31,400195;-4,352992;1018;0,7;07:40;
+7;E2 - Liaison sud;demi_tour;8,807;0,830;0,315;DEMI-TOUR;174;;220;;;31,405278;-4,346928;1020;0,2;07:41;
+8;E2 - Liaison sud;virage;9,123;0,315;0,177;AD;83;normale;310;;;31,403159;-4,349031;1020;0,0;07:42;
+9;E2 - Liaison sud;poi;9,300;0,177;2,365;TD;;;310;Bourbier après pluie, rester sur la piste principale;danger;31,404149;-4,350445;1020;-0,1;07:42;
+10;E2 - Liaison sud;arrivee;11,665;2,365;;ARRIVÉE;;;;;;31,417610;-4,369252;1009;-0,5;07:45;

@@ -1,0 +1,13 @@
+Rapport de génération — Raid des Dunes 2027
+
+Étape « E1 - Erfoud boucle nord » : 20.64 km, 13 cases (1 rond-point, 7 virage), 5 POI
+Étape « E2 - Liaison sud » : 11.67 km, 10 cases (1 demi-tour, 1 rond-point, 3 virage), 3 POI
+
+Avertissements (3) :
+  - Trace « E1 - Erfoud boucle nord » : 1 point(s) en doublon supprimé(s)
+  - Trace « E2 - Liaison sud » : 1 point(s) en doublon supprimé(s)
+  - POI GPX:CS2 (Contrôle) sans description
+
+Cases à vérifier (2) :
+  - case 4 (E1 - Erfoud boucle nord, km 5.91, RP SORTIE TD) : n° de sortie non déterminable sans carte : à préciser si besoin
+  - case 4 (E2 - Liaison sud, km 4.85, RP SORTIE AG) : n° de sortie non déterminable sans carte : à préciser si besoin

@@ -1,0 +1,36 @@
+# Configuration d'exemple : toutes les clés sont facultatives.
+# `roadbook config-defaut` affiche la liste complète avec les valeurs par défaut.
+
+epreuve:
+  nom: "Raid des Dunes 2027"
+  equipage: "Équipage 42 – A. Martin / C. Durand"
+  depart_prevu: "2027-02-20 07:30"
+  vitesse_moyenne_kmh: 45
+  decoupage_etapes: par_trace     # une <trk> du GPX = une étape
+
+calcul:
+  pas_reechantillonnage_m: 5      # pas des calculs
+  seuil_virage_deg: 20            # en dessous : pas d'instruction
+  fenetre_virage_m: 30            # distance sur laquelle le virage doit se produire
+  fusion_virages_m: 25            # virages de même sens plus proches : fusionnés
+  tranches_angle_deg: [45, 105, 150]   # légère | normale | forte | épingle
+  rappel_km: 3                    # case « TD » de rappel au-delà de 3 km sans instruction
+  sens_circulation: droite        # rond-points antihoraires
+  poi_tolerance_m: 75
+
+affichage:
+  format: a5                      # a5 | a4 | rouleau
+  hauteur_case_mm: 25
+  decimales_total: 2
+  decimales_partiel: 1
+  textes: abrege                  # abrege (AD, AG...) | complet
+  afficher_cap: true
+  couleurs: true
+  mini_carte: false
+  page_garde: true
+  page_legende: true
+  remise_a_zero: etape            # etape | epreuve
+  numerotation: etape             # etape | epreuve
+
+abreviations:
+  "grosse piste": "GROSSE PP"
