@@ -6,289 +6,350 @@
 <title>Roadbook Studio</title>
 <style>
 :root {
-  --fond: #f3f4f6;
+  --fond: #f2f3f5;
   --panneau: #ffffff;
-  --panneau-2: #f8f9fb;
-  --bord: #e2e5ea;
-  --texte: #161a21;
-  --texte-2: #5b6472;
+  --panneau-2: #f7f8fa;
+  --survol: #eef0f3;
+  --bord: #e1e4e9;
+  --bord-fort: #c9ced6;
+  --texte: #14181f;
+  --texte-2: #545d6b;
   --texte-3: #8a93a1;
   --accent: #e8590c;
-  --accent-2: #ff7a2e;
-  --accent-doux: #fff1e8;
+  --accent-2: #f76d1f;
+  --accent-doux: #fff1e7;
+  --accent-bord: #fbc9a8;
   --bleu: #1d4ed8;
-  --bleu-doux: #e8efff;
+  --bleu-doux: #e9f0ff;
   --rouge: #c81e1e;
-  --rouge-doux: #fdecec;
+  --rouge-doux: #fdeded;
   --vert: #15803d;
-  --entete: #12161c;
-  --entete-texte: #f3f4f6;
+  --vert-doux: #e8f6ed;
+  --entete: #11151b;
+  --entete-2: #1c232d;
+  --entete-bord: #2a3340;
+  --apercu: #dfe2e7;
   --ombre: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --ombre-haute: 0 12px 32px rgba(16,24,40,.18);
   --rayon: 10px;
+  --transition: 140ms ease;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --fond: #0e1116; --panneau: #161b22; --panneau-2: #1b212a; --bord: #2a313c;
-    --texte: #e6e9ee; --texte-2: #a4adba; --texte-3: #6f7987;
-    --accent-doux: #3a1f10; --bleu: #7aa2ff; --bleu-doux: #18223a; --rouge: #ff6b6b; --rouge-doux: #3a1717;
-    --entete: #0a0d11; --ombre: 0 1px 2px rgba(0,0,0,.4); color-scheme: dark;
+    --fond: #0d1015; --panneau: #151a21; --panneau-2: #1a2029; --survol: #212833; --bord: #28303b; --bord-fort: #3a4452;
+    --texte: #e7eaef; --texte-2: #a3acb9; --texte-3: #6e7886;
+    --accent-doux: #35200f; --accent-bord: #6b3a17; --bleu: #82a8ff; --bleu-doux: #172238;
+    --rouge: #ff7070; --rouge-doux: #351818; --vert: #4ade80; --vert-doux: #11281b;
+    --entete: #090c10; --entete-2: #141a22; --entete-bord: #232b36; --apercu: #0a0d11;
+    --ombre: 0 1px 2px rgba(0,0,0,.45); --ombre-haute: 0 14px 36px rgba(0,0,0,.55); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --fond: #0e1116; --panneau: #161b22; --panneau-2: #1b212a; --bord: #2a313c;
-  --texte: #e6e9ee; --texte-2: #a4adba; --texte-3: #6f7987;
-  --accent-doux: #3a1f10; --bleu: #7aa2ff; --bleu-doux: #18223a; --rouge: #ff6b6b; --rouge-doux: #3a1717;
-  --entete: #0a0d11; --ombre: 0 1px 2px rgba(0,0,0,.4); color-scheme: dark;
+  --fond: #0d1015; --panneau: #151a21; --panneau-2: #1a2029; --survol: #212833; --bord: #28303b; --bord-fort: #3a4452;
+  --texte: #e7eaef; --texte-2: #a3acb9; --texte-3: #6e7886;
+  --accent-doux: #35200f; --accent-bord: #6b3a17; --bleu: #82a8ff; --bleu-doux: #172238;
+  --rouge: #ff7070; --rouge-doux: #351818; --vert: #4ade80; --vert-doux: #11281b;
+  --entete: #090c10; --entete-2: #141a22; --entete-bord: #232b36; --apercu: #0a0d11;
+  --ombre: 0 1px 2px rgba(0,0,0,.45); --ombre-haute: 0 14px 36px rgba(0,0,0,.55); color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
 body {
   background: var(--fond); color: var(--texte);
   font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  display: grid; grid-template-rows: 56px 1fr; overflow: hidden;
+  display: grid; grid-template-rows: 54px 1fr; overflow: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+kbd { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; border: 1px solid var(--bord); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; color: var(--texte-2); background: var(--panneau-2); }
 
 /* ---------- en-tête ---------- */
-header {
-  background: var(--entete); color: var(--entete-texte);
-  display: flex; align-items: center; gap: 14px; padding: 0 16px; min-width: 0;
-}
-.logo { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .08em; white-space: nowrap; }
-.logo svg { flex: none; }
-.logo small { font-weight: 500; letter-spacing: 0; color: #8a93a1; }
-.titre-epreuve { color: #c3c9d2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+header { background: var(--entete); color: #eef0f3; display: flex; align-items: center; gap: 10px; padding: 0 14px; min-width: 0; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .08em; white-space: nowrap; font-size: 15px; }
+.logo small { font-weight: 500; letter-spacing: 0; color: #7d8794; font-size: 12px; }
+.titre-epreuve { color: #b8c0cb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; padding-left: 12px; border-left: 1px solid var(--entete-bord); }
 .espace { flex: 1; }
-.statut { display: flex; align-items: center; gap: 8px; color: #aab2bd; font-size: 13px; white-space: nowrap; }
-.pastille { width: 8px; height: 8px; border-radius: 50%; background: #4b5563; }
+.statut { display: flex; align-items: center; gap: 8px; color: #a9b2bd; font-size: 13px; white-space: nowrap; margin-right: 4px; }
+.pastille { width: 8px; height: 8px; border-radius: 50%; background: #4b5563; transition: background var(--transition); }
 .pastille.ok { background: #22c55e; } .pastille.travail { background: var(--accent-2); animation: pulse 1s infinite; }
 .pastille.erreur { background: #ef4444; }
-@keyframes pulse { 50% { opacity: .35; } }
-.btn {
-  border: 1px solid var(--bord); background: var(--panneau); border-radius: 8px;
-  padding: 7px 12px; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
-}
-.btn:hover { border-color: var(--texte-3); }
+@keyframes pulse { 50% { opacity: .3; } }
+.btn { border: 1px solid var(--bord); background: var(--panneau); border-radius: 8px; padding: 7px 12px; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; transition: border-color var(--transition), background var(--transition), color var(--transition); }
+.btn:hover { border-color: var(--bord-fort); background: var(--survol); }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-.btn.primaire:hover { background: var(--accent-2); }
-header .btn { background: #1e252f; border-color: #2b3440; color: #e6e9ee; }
-header .btn:hover { border-color: #56606e; }
+.btn.primaire:hover:not(:disabled) { background: var(--accent-2); border-color: var(--accent-2); }
+header .btn { background: var(--entete-2); border-color: var(--entete-bord); color: #e6e9ee; }
+header .btn:hover:not(:disabled) { border-color: #4a5462; background: #222a35; }
+header .btn.primaire { background: var(--accent); border-color: var(--accent); }
+header .btn.icone { padding: 7px 8px; }
+.groupe { display: flex; }
+.groupe .btn:first-child { border-radius: 8px 0 0 8px; }
+.groupe .btn:last-child { border-radius: 0 8px 8px 0; border-left: 0; }
 .menu { position: relative; }
-.menu-liste {
-  position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 230px;
-  background: var(--panneau); color: var(--texte); border: 1px solid var(--bord); border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 6px; display: none;
-}
-.menu.ouvert .menu-liste { display: block; }
-.menu-liste button {
-  display: flex; width: 100%; gap: 10px; align-items: center; text-align: left; padding: 8px 10px;
-  border: 0; background: none; border-radius: 6px;
-}
-.menu-liste button:hover { background: var(--panneau-2); }
+.menu-liste { position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 250px; background: var(--panneau); color: var(--texte); border: 1px solid var(--bord); border-radius: 12px; box-shadow: var(--ombre-haute); padding: 6px; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity var(--transition), transform var(--transition); }
+.menu.ouvert .menu-liste { opacity: 1; transform: none; pointer-events: auto; }
+.menu-liste button { display: flex; width: 100%; gap: 10px; align-items: center; text-align: left; padding: 8px 10px; border: 0; background: none; border-radius: 8px; }
+.menu-liste button:hover { background: var(--survol); }
+.menu-liste button > svg { color: var(--texte-3); flex: none; }
 .menu-liste small { display: block; color: var(--texte-3); }
-.menu-liste hr { border: 0; border-top: 1px solid var(--bord); margin: 4px 0; }
+.menu-liste kbd { margin-left: auto; }
+.menu-liste hr { border: 0; border-top: 1px solid var(--bord); margin: 5px 0; }
 
 /* ---------- disposition ---------- */
-.app { display: grid; grid-template-columns: 370px 1fr; min-height: 0; }
-aside {
-  border-right: 1px solid var(--bord); background: var(--panneau); overflow-y: auto; min-height: 0;
-}
-main { display: grid; grid-template-rows: auto 1fr; min-height: 0; min-width: 0; }
+.app { display: grid; grid-template-columns: 372px 1fr; min-height: 0; }
+aside { border-right: 1px solid var(--bord); background: var(--panneau); display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+.defilement { overflow-y: auto; min-height: 0; scrollbar-gutter: stable; }
+main { display: grid; grid-template-rows: auto 1fr; min-height: 0; min-width: 0; position: relative; }
 
 /* ---------- fichiers ---------- */
-.bloc { padding: 16px; border-bottom: 1px solid var(--bord); }
-.bloc h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--texte-3); margin: 0 0 10px; }
-.depot {
-  border: 1.5px dashed var(--bord); border-radius: var(--rayon); padding: 10px 12px; display: flex; gap: 12px;
-  align-items: center; cursor: pointer; transition: border-color .15s, background .15s; margin-bottom: 8px;
-  background: var(--panneau-2);
-}
+.bloc { padding: 14px 16px; border-bottom: 1px solid var(--bord); }
+.bloc h2, .sous-titre { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--texte-3); margin: 0 0 10px; font-weight: 700; }
+.depots { display: grid; gap: 8px; }
+.depot { border: 1.5px dashed var(--bord-fort); border-radius: var(--rayon); padding: 9px 10px; display: flex; gap: 11px; align-items: center; cursor: pointer; transition: border-color var(--transition), background var(--transition); background: var(--panneau-2); min-width: 0; }
 .depot:hover, .depot.survol { border-color: var(--accent); background: var(--accent-doux); }
-.depot .ico { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; flex: none;
-  background: var(--panneau); border: 1px solid var(--bord); color: var(--texte-2); }
-.depot.rempli { border-style: solid; }
+.depot .ico { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; flex: none; background: var(--panneau); border: 1px solid var(--bord); color: var(--texte-2); transition: var(--transition); }
+.depot.rempli { border-style: solid; border-color: var(--bord); background: var(--panneau); }
 .depot.rempli .ico { background: var(--accent); color: #fff; border-color: var(--accent); }
-.depot b { display: block; font-weight: 600; }
-.depot small { color: var(--texte-3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.depot div { min-width: 0; flex: 1; }
-.depot .retirer { border: 0; background: none; color: var(--texte-3); padding: 4px; border-radius: 6px; }
-.depot .retirer:hover { color: var(--rouge); }
+.depot b { display: block; font-weight: 600; font-size: 13.5px; }
+.depot small { color: var(--texte-3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+.depot > div { min-width: 0; flex: 1; }
+.depot .retirer { border: 0; background: none; color: var(--texte-3); padding: 5px; border-radius: 6px; display: grid; }
+.depot .retirer:hover { color: var(--rouge); background: var(--rouge-doux); }
+.etiquette { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--texte-3); margin-left: 4px; }
 input[type=file] { display: none; }
-.analyser { width: 100%; justify-content: center; padding: 10px; margin-top: 6px; font-size: 15px; }
-.bandeau {
-  margin-top: 10px; padding: 9px 11px; border-radius: 8px; background: var(--accent-doux); color: var(--texte);
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); font-size: 13px; display: none;
-}
-.bandeau.visible { display: block; }
 
 /* ---------- options ---------- */
+.recherche-options { position: sticky; top: 0; z-index: 3; background: var(--panneau); padding: 12px 16px 10px; border-bottom: 1px solid var(--bord); }
+.champ-recherche { position: relative; }
+.champ-recherche svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--texte-3); pointer-events: none; }
+.champ-recherche input { width: 100%; border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 8px; padding: 7px 9px 7px 32px; }
+.modeles { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.modele { border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 99px; padding: 4px 10px; font-size: 12.5px; color: var(--texte-2); display: inline-flex; gap: 6px; align-items: center; transition: var(--transition); }
+.modele:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-doux); }
+.modele.actif { border-color: var(--accent); background: var(--accent); color: #fff; }
 details.section { border-bottom: 1px solid var(--bord); }
-details.section > summary {
-  list-style: none; padding: 13px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer;
-  font-weight: 600; user-select: none;
-}
+details.section > summary { list-style: none; padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; user-select: none; transition: background var(--transition); }
+details.section > summary:hover { background: var(--panneau-2); }
 details.section > summary::-webkit-details-marker { display: none; }
-details.section > summary .chevron { margin-left: auto; transition: transform .15s; color: var(--texte-3); }
+details.section > summary .chevron { margin-left: auto; transition: transform var(--transition); color: var(--texte-3); display: grid; }
 details.section[open] > summary .chevron { transform: rotate(90deg); }
 details.section > summary .ico { color: var(--accent); display: grid; }
-.champs { padding: 0 16px 14px; display: grid; gap: 12px; }
-.champ label.lib { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--texte-2); margin-bottom: 5px; }
-.champ .aide { color: var(--texte-3); font-size: 12px; margin-top: 4px; }
-.badge {
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px;
-  border-radius: 99px; background: var(--bleu-doux); color: var(--bleu);
-}
-.champ input[type=text], .champ input[type=number], .champ select, .champ textarea, .saisie {
-  width: 100%; border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 8px; padding: 7px 9px;
-}
-.champ input:focus, .champ select:focus, .champ textarea:focus, .saisie:focus, .cases textarea:focus, .cases input:focus {
-  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 0; border-color: var(--accent);
-}
+.nb-modifs { font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-doux); border-radius: 99px; padding: 0 7px; }
+.champs { padding: 2px 16px 16px; display: grid; gap: 14px; }
+.champ { position: relative; }
+.champ .tete { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--texte-2); margin-bottom: 6px; min-height: 20px; }
+.champ .tete .lib { flex: 1; min-width: 0; }
+.champ.modifie .tete .lib::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 6px; vertical-align: 2px; }
+.reinit-champ { border: 0; background: none; color: var(--texte-3); padding: 2px; border-radius: 5px; display: none; }
+.champ.modifie .reinit-champ { display: grid; }
+.reinit-champ:hover { color: var(--accent); background: var(--accent-doux); }
+.champ .aide { color: var(--texte-3); font-size: 12px; margin-top: 5px; }
+.badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border-radius: 99px; background: var(--bleu-doux); color: var(--bleu); white-space: nowrap; }
+.champ input[type=text], .champ input[type=number], .champ select, .champ textarea, .saisie { width: 100%; border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 8px; padding: 7px 9px; transition: border-color var(--transition); }
+.champ input:hover, .champ select:hover, .champ textarea:hover, .saisie:hover { border-color: var(--bord-fort); }
+.champ input:focus, .champ select:focus, .champ textarea:focus, .saisie:focus, .cases textarea:focus, .cases input:focus, .champ-recherche input:focus { outline: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); outline-offset: 0; border-color: var(--accent); }
 .avec-unite { display: flex; align-items: center; gap: 8px; }
-.avec-unite span { color: var(--texte-3); font-size: 13px; }
-.curseur { display: grid; grid-template-columns: 1fr 64px; gap: 10px; align-items: center; }
+.avec-unite span { color: var(--texte-3); font-size: 13px; min-width: 22px; }
+.curseur { display: grid; grid-template-columns: 1fr 62px; gap: 10px; align-items: center; }
 input[type=range] { width: 100%; accent-color: var(--accent); }
-.valeur { text-align: right; font-variant-numeric: tabular-nums; color: var(--texte-2); }
-.segments { display: flex; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 8px; padding: 3px; gap: 3px; flex-wrap: wrap; }
-.segments button { flex: 1; border: 0; background: none; padding: 6px 8px; border-radius: 6px; color: var(--texte-2); font-size: 13px; }
+.valeur { text-align: right; font-variant-numeric: tabular-nums; color: var(--texte); font-size: 13px; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 6px; padding: 2px 6px; }
+.segments { display: flex; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 8px; padding: 3px; gap: 3px; }
+.segments button { flex: 1; border: 0; background: none; padding: 6px 6px; border-radius: 6px; color: var(--texte-2); font-size: 12.5px; transition: var(--transition); min-width: 0; }
+.segments button:hover { color: var(--texte); }
 .segments button.actif { background: var(--panneau); color: var(--texte); box-shadow: var(--ombre); font-weight: 600; }
 .interrupteur { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.interrupteur .lib { margin: 0; color: var(--texte); font-size: 14px; }
-.bascule { position: relative; width: 38px; height: 22px; flex: none; }
+.interrupteur .tete { margin: 0; color: var(--texte); font-size: 13.5px; flex: 1; }
+.bascule { position: relative; width: 36px; height: 21px; flex: none; }
 .bascule input { opacity: 0; width: 0; height: 0; position: absolute; }
-.bascule span { position: absolute; inset: 0; background: var(--bord); border-radius: 99px; transition: .15s; cursor: pointer; }
-.bascule span::after { content: ""; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; border-radius: 50%; background: #fff; transition: .15s; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.bascule span { position: absolute; inset: 0; background: var(--bord-fort); border-radius: 99px; transition: var(--transition); cursor: pointer; }
+.bascule span::after { content: ""; position: absolute; width: 15px; height: 15px; left: 3px; top: 3px; border-radius: 50%; background: #fff; transition: var(--transition); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
 .bascule input:checked + span { background: var(--accent); }
-.bascule input:checked + span::after { transform: translateX(16px); }
-.colonnes-apercu { display: flex; height: 26px; border-radius: 6px; overflow: hidden; border: 1px solid var(--bord); margin-bottom: 8px; font-size: 11px; }
-.colonnes-apercu div { display: grid; place-items: center; color: var(--texte-2); border-right: 1px solid var(--bord); white-space: nowrap; overflow: hidden; }
+.bascule input:checked + span::after { transform: translateX(15px); }
+.bascule input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.colonnes-apercu { display: flex; height: 28px; border-radius: 7px; overflow: hidden; border: 1px solid var(--bord); margin-bottom: 8px; font-size: 11px; }
+.colonnes-apercu div { display: grid; place-items: center; color: var(--texte-2); border-right: 1px solid var(--bord); white-space: nowrap; overflow: hidden; transition: width 120ms ease; }
+.colonnes-apercu div:last-child { border-right: 0; }
 .colonnes-apercu div:nth-child(1) { background: var(--panneau-2); }
 .colonnes-apercu div:nth-child(2) { background: var(--accent-doux); }
 .triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.triple small { color: var(--texte-3); display: block; font-size: 11px; margin-bottom: 2px; }
+.triple small { color: var(--texte-3); display: block; font-size: 11px; margin-bottom: 3px; white-space: nowrap; }
 .dico { display: grid; gap: 6px; }
-.dico-ligne { display: grid; grid-template-columns: 1fr 90px 28px; gap: 6px; }
-.dico-ligne button, .petit-btn { border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 6px; color: var(--texte-2); }
-.petit-btn { padding: 5px 9px; font-size: 13px; justify-self: start; }
-.reinit { padding: 14px 16px 24px; display: flex; gap: 8px; }
+.dico-ligne { display: grid; grid-template-columns: 1fr 92px 30px; gap: 6px; }
+.dico-ligne button, .petit-btn { border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 7px; color: var(--texte-2); transition: var(--transition); }
+.dico-ligne button:hover { color: var(--rouge); border-color: var(--rouge); }
+.petit-btn { padding: 5px 10px; font-size: 12.5px; justify-self: start; }
+.petit-btn:hover { border-color: var(--bord-fort); color: var(--texte); }
+.aucun-resultat { padding: 24px 16px; color: var(--texte-3); text-align: center; font-size: 13px; }
+.bas-options { padding: 14px 16px 22px; }
+
+/* ---------- barre de génération ---------- */
+.generation { padding: 12px 16px; border-top: 1px solid var(--bord); background: var(--panneau); display: grid; gap: 8px; }
+.generation .btn { width: 100%; justify-content: center; padding: 10px; font-size: 14.5px; }
+.etat-analyse { font-size: 12.5px; color: var(--texte-3); display: flex; gap: 6px; align-items: center; min-height: 18px; }
+.etat-analyse.perimee { color: var(--accent); font-weight: 600; }
+.etat-analyse.ok { color: var(--vert); }
 
 /* ---------- onglets ---------- */
-.onglets { display: flex; gap: 2px; padding: 0 16px; background: var(--panneau); border-bottom: 1px solid var(--bord); align-items: flex-end; overflow-x: auto; }
-.onglets button {
-  border: 0; background: none; padding: 13px 14px 11px; border-bottom: 2px solid transparent; color: var(--texte-2);
-  font-weight: 600; display: flex; gap: 8px; align-items: center; white-space: nowrap;
-}
+.onglets { display: flex; gap: 2px; padding: 0 12px; background: var(--panneau); border-bottom: 1px solid var(--bord); align-items: flex-end; overflow-x: auto; scrollbar-width: none; }
+.onglets button { border: 0; background: none; padding: 13px 12px 11px; border-bottom: 2px solid transparent; color: var(--texte-2); font-weight: 600; display: flex; gap: 8px; align-items: center; white-space: nowrap; transition: color var(--transition), border-color var(--transition); }
+.onglets button:hover { color: var(--texte); }
 .onglets button.actif { color: var(--texte); border-bottom-color: var(--accent); }
-.compteur { font-size: 11px; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 99px; padding: 0 7px; color: var(--texte-2); }
+.compteur { font-size: 11px; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 99px; padding: 0 7px; color: var(--texte-2); font-variant-numeric: tabular-nums; }
 .compteur.alerte { background: var(--accent-doux); color: var(--accent); border-color: transparent; }
-.onglets .infos { margin-left: auto; color: var(--texte-3); font-size: 13px; padding: 12px 0; white-space: nowrap; }
+.onglets .infos { margin-left: auto; color: var(--texte-3); font-size: 13px; padding: 12px 4px; white-space: nowrap; }
+.progression { position: absolute; left: 0; right: 0; top: 46px; height: 2px; overflow: hidden; z-index: 6; opacity: 0; transition: opacity 200ms; pointer-events: none; }
+.progression.visible { opacity: 1; }
+.progression::after { content: ""; position: absolute; inset: 0; width: 35%; background: var(--accent); animation: barre 1.1s ease-in-out infinite; }
+@keyframes barre { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
 .vue { display: none; min-height: 0; min-width: 0; }
 .vue.active { display: block; }
 
 /* ---------- aperçu ---------- */
-#vue-apercu { position: relative; background: #525659; }
-#vue-apercu iframe { border: 0; width: 100%; height: 100%; display: block; }
-.vide {
-  position: absolute; inset: 0; display: grid; place-items: center; background: var(--fond); padding: 24px;
-}
-.vide-carte { max-width: 520px; text-align: center; color: var(--texte-2); }
-.vide-carte h1 { color: var(--texte); font-size: 22px; margin: 16px 0 6px; }
-.etapes-aide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 22px; text-align: left; }
+#vue-apercu.active { display: grid; grid-template-rows: auto 1fr; height: 100%; position: relative; }
+.barre-apercu { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--panneau); border-bottom: 1px solid var(--bord); flex-wrap: wrap; }
+.barre-apercu .saisie { width: auto; max-width: 340px; padding: 5px 8px; }
+.barre-apercu .btn { padding: 5px 9px; }
+.barre-apercu .btn.actif { border-color: var(--accent); color: var(--accent); background: var(--accent-doux); }
+.zoom-valeur { min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; color: var(--texte-2); font-size: 13px; }
+.separateur { width: 1px; height: 22px; background: var(--bord); margin: 0 4px; }
+.visionneuse { overflow: auto; background: var(--apercu); min-height: 0; position: relative; }
+.pages { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 22px 16px 60px; min-width: min-content; }
+.page { position: relative; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.12), 0 10px 28px rgba(0,0,0,.12); border-radius: 2px; flex: none; overflow: hidden; }
+.page img { width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 180ms ease; }
+.page.prete img { opacity: 1; }
+.page:not(.prete)::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, #f4f5f7 30%, #e9ebee 50%, #f4f5f7 70%); background-size: 300% 100%; animation: reflet 1.4s linear infinite; }
+@keyframes reflet { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+.page .num-page { position: absolute; right: 8px; bottom: 6px; font-size: 11px; color: #6b7280; background: rgba(255,255,255,.85); border-radius: 4px; padding: 0 5px; opacity: 0; transition: opacity var(--transition); }
+.page:hover .num-page { opacity: 1; }
+.page.eclair { animation: eclair 1.2s ease; }
+@keyframes eclair { 0%, 60% { box-shadow: 0 0 0 4px var(--accent), 0 10px 28px rgba(0,0,0,.2); } 100% { box-shadow: 0 2px 6px rgba(0,0,0,.12), 0 10px 28px rgba(0,0,0,.12); } }
+#pdf-cadre { border: 0; width: 100%; height: 100%; display: block; }
+.vide { position: absolute; inset: 0; display: grid; place-items: center; background: var(--fond); padding: 24px; overflow: auto; z-index: 2; }
+.vide-carte { max-width: 560px; text-align: center; color: var(--texte-2); }
+.vide-carte h1 { color: var(--texte); font-size: 23px; margin: 18px 0 8px; letter-spacing: -.01em; }
+.vide-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.vide-actions .btn { padding: 9px 16px; }
+.etapes-aide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 26px; text-align: left; }
 .etapes-aide div { background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 12px; font-size: 13px; }
 .etapes-aide b { display: block; color: var(--accent); font-size: 18px; }
-.ouvrir-onglet { position: absolute; bottom: 16px; right: 16px; box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; }
-.ouvrir-onglet.visible { display: inline-flex; }
-.chargement { position: absolute; top: 12px; right: 16px; background: rgba(18,22,28,.88); color: #fff; padding: 7px 12px; border-radius: 99px; font-size: 13px; display: none; align-items: center; gap: 8px; }
-.chargement.visible { display: flex; }
-.roue { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: tourne .8s linear infinite; }
-@keyframes tourne { to { transform: rotate(360deg); } }
+.raccourcis { margin-top: 18px; font-size: 12px; color: var(--texte-3); display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
 /* ---------- cases ---------- */
-#vue-cases.active { display: grid; grid-template-columns: minmax(0, 1fr) 360px; height: 100%; }
+#vue-cases.active { display: grid; grid-template-columns: minmax(0, 1fr) 350px; height: 100%; }
 .liste-cases { overflow: auto; min-height: 0; padding: 14px 16px 40px; }
-.outils { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-.outils .saisie { width: 220px; }
-.outils label { display: flex; gap: 6px; align-items: center; color: var(--texte-2); font-size: 13px; }
-table.cases { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); overflow: hidden; }
-.cases th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--texte-3); padding: 9px 10px; background: var(--panneau-2); border-bottom: 1px solid var(--bord); position: sticky; top: 0; z-index: 1; }
-.cases td { padding: 8px 10px; border-bottom: 1px solid var(--bord); vertical-align: top; }
+.outils { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.outils .champ-recherche { width: 260px; }
+.outils label { display: flex; gap: 6px; align-items: center; color: var(--texte-2); font-size: 13px; cursor: pointer; }
+table.cases { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); }
+.cases th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--texte-3); padding: 9px 10px; background: var(--panneau-2); border-bottom: 1px solid var(--bord); position: sticky; top: -14px; z-index: 1; }
+.cases th:first-child { border-top-left-radius: var(--rayon); } .cases th:last-child { border-top-right-radius: var(--rayon); }
+.cases td { padding: 9px 10px; border-bottom: 1px solid var(--bord); vertical-align: top; transition: background var(--transition); }
 .cases tr:last-child td { border-bottom: 0; }
-.cases tr.etape-titre td { background: var(--panneau-2); font-weight: 700; padding: 10px; }
-.cases tr.selection td { background: var(--accent-doux); }
+.cases tr[data-id]:hover td { background: var(--panneau-2); }
+.cases tr.etape-titre td { background: var(--panneau-2); font-weight: 700; padding: 10px 12px; font-size: 13px; }
+.cases tr.selection td { background: var(--accent-doux) !important; }
 .cases tr.controle td:first-child { box-shadow: inset 4px 0 var(--bleu); }
 .cases tr.danger td:first-child { box-shadow: inset 4px 0 var(--rouge); }
-.num { font-size: 12px; color: var(--texte-3); }
-.km { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
-.partiel { color: var(--texte-2); font-variant-numeric: tabular-nums; font-size: 13px; }
+.num { font-size: 12px; color: var(--texte-3); font-variant-numeric: tabular-nums; }
+.km { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.partiel { color: var(--texte-2); font-variant-numeric: tabular-nums; font-size: 12.5px; }
 .tulipe { width: 64px; height: 64px; display: block; background: var(--panneau-2); border-radius: 8px; border: 1px solid var(--bord); }
-.cases input.desc { width: 100%; font-weight: 700; border: 1px solid transparent; background: transparent; padding: 5px 7px; border-radius: 6px; text-transform: var(--casse, none); }
-.cases textarea { width: 100%; border: 1px solid transparent; background: transparent; padding: 5px 7px; border-radius: 6px; resize: vertical; min-height: 30px; color: var(--texte-2); text-transform: var(--casse, none); }
-.cases input.desc:hover, .cases textarea:hover { border-color: var(--bord); }
-.marques { display: grid; gap: 6px; width: 150px; }
+.cases input.desc { width: 100%; font-weight: 700; border: 1px solid transparent; background: transparent; padding: 5px 7px; border-radius: 6px; text-transform: var(--casse, none); transition: border-color var(--transition), background var(--transition); }
+.cases textarea { width: 100%; border: 1px solid transparent; background: transparent; padding: 5px 7px; border-radius: 6px; resize: vertical; min-height: 30px; color: var(--texte-2); text-transform: var(--casse, none); transition: border-color var(--transition), background var(--transition); }
 .cases textarea::placeholder, .cases input::placeholder { text-transform: none; }
-.marques select, .marques input { border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 6px; padding: 4px 6px; width: 100%; font-size: 13px; }
-.remarque { color: var(--accent); font-size: 12px; margin-top: 4px; display: flex; gap: 5px; }
-.modifiee { display: inline-block; font-size: 10px; font-weight: 700; color: var(--bleu); background: var(--bleu-doux); border-radius: 99px; padding: 0 6px; margin-left: 6px; vertical-align: middle; }
+.cases input.desc:hover, .cases textarea:hover { border-color: var(--bord); background: var(--panneau); }
+.marques { display: grid; gap: 6px; width: 132px; }
+.marques select, .marques input { border: 1px solid var(--bord); background: var(--panneau-2); border-radius: 6px; padding: 4px 6px; width: 100%; font-size: 12.5px; }
+.remarque { color: var(--accent); font-size: 12px; margin-top: 4px; display: flex; gap: 5px; align-items: flex-start; }
+.remarque svg { flex: none; margin-top: 1px; }
+.modifiee { display: inline-block; font-size: 10px; font-weight: 700; color: var(--bleu); background: var(--bleu-doux); border-radius: 99px; padding: 0 6px; margin: 2px 0 0 6px; }
 .actions-case { display: flex; flex-direction: column; gap: 4px; }
-.icone-btn { border: 1px solid var(--bord); background: var(--panneau); border-radius: 6px; width: 30px; height: 30px; display: grid; place-items: center; color: var(--texte-2); }
-.icone-btn:hover { color: var(--rouge); border-color: var(--rouge); }
-.icone-btn.annuler:hover { color: var(--bleu); border-color: var(--bleu); }
+.icone-btn { border: 1px solid var(--bord); background: var(--panneau); border-radius: 7px; width: 30px; height: 30px; display: grid; place-items: center; color: var(--texte-2); transition: var(--transition); }
+.icone-btn:hover { color: var(--accent); border-color: var(--accent); }
+.icone-btn.supprimer:hover { color: var(--rouge); border-color: var(--rouge); background: var(--rouge-doux); }
 .carte-panneau { border-left: 1px solid var(--bord); background: var(--panneau); padding: 14px; overflow: auto; display: flex; flex-direction: column; gap: 14px; }
-.carte-panneau h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--texte-3); }
 #carte { width: 100%; aspect-ratio: 1; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: var(--rayon); }
-#carte .trace { fill: none; stroke: var(--texte); stroke-width: 2.2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-#carte circle.point { fill: var(--panneau); stroke: var(--texte); stroke-width: 1.5; cursor: pointer; vector-effect: non-scaling-stroke; }
+#carte .trace { fill: none; stroke: var(--texte); stroke-width: 2.2; stroke-linejoin: round; vector-effect: non-scaling-stroke; opacity: .85; }
+#carte circle.point { fill: var(--panneau); stroke: var(--texte); stroke-width: 1.4; cursor: pointer; vector-effect: non-scaling-stroke; transition: r 120ms; }
 #carte circle.point.controle { stroke: var(--bleu); fill: var(--bleu-doux); }
 #carte circle.point.danger { stroke: var(--rouge); fill: var(--rouge-doux); }
 #carte circle.point.actif { fill: var(--accent); stroke: var(--accent); }
-#carte text { font-size: 10px; font-weight: 700; fill: var(--texte); pointer-events: none; }
+#carte text { font-weight: 700; fill: var(--texte); pointer-events: none; }
 .carte-tete { display: flex; align-items: center; gap: 8px; }
-.carte-tete select { flex: 1; }
+.carte-tete .sous-titre { margin: 0; }
+.carte-tete select { flex: 1; min-width: 0; }
 .formulaire-ajout { display: grid; gap: 8px; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 12px; }
-.formulaire-ajout .rang { display: grid; grid-template-columns: 1fr 90px; gap: 8px; }
+.formulaire-ajout .rang { display: grid; grid-template-columns: 1fr 92px; gap: 8px; }
+.formulaire-ajout .saisie { background: var(--panneau); }
 .supprimees { font-size: 13px; color: var(--texte-2); display: grid; gap: 6px; }
 .supprimees div { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 
 /* ---------- rapport ---------- */
 #vue-rapport { overflow: auto; padding: 18px 20px 40px; }
 #vue-rapport.active { height: 100%; }
-.cartes-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-bottom: 18px; }
+#vue-rapport h3 { font-size: 15px; }
+.cartes-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .stat { background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 14px; }
-.stat small { color: var(--texte-3); display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-.stat b { font-size: 24px; font-variant-numeric: tabular-nums; }
+.stat small { color: var(--texte-3); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+.stat b { font-size: 24px; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
 .stat span { color: var(--texte-2); font-size: 13px; }
-.avert { background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); }
-.avert div { padding: 10px 14px; border-bottom: 1px solid var(--bord); display: flex; gap: 10px; font-size: 13px; }
-.avert div:last-child { border-bottom: 0; }
+.avert { background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); overflow: hidden; }
+.avert > div { padding: 10px 14px; border-bottom: 1px solid var(--bord); display: flex; gap: 10px; font-size: 13px; align-items: flex-start; }
+.avert > div:last-child { border-bottom: 0; }
 .avert svg { flex: none; color: var(--accent); margin-top: 1px; }
-pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 14px; white-space: pre-wrap; font-size: 12.5px; color: var(--texte-2); }
+.avert button { margin-left: auto; flex: none; }
+pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 14px; white-space: pre-wrap; font-size: 12.5px; color: var(--texte-2); margin: 0; }
 
-.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: #12161c; color: #fff; padding: 10px 16px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.25); opacity: 0; transition: .2s; pointer-events: none; z-index: 50; max-width: min(640px, calc(100vw - 32px)); }
-.toast.visible { opacity: 1; transform: translateX(-50%); }
+/* ---------- dépôt global, toasts ---------- */
+.depot-global { position: fixed; inset: 0; z-index: 60; background: color-mix(in srgb, var(--entete) 70%, transparent); display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity 150ms; }
+.depot-global.visible { opacity: 1; pointer-events: auto; }
+.depot-global div { border: 2px dashed #fff; border-radius: 18px; padding: 40px 56px; color: #fff; text-align: center; font-size: 18px; font-weight: 600; background: rgba(0,0,0,.25); }
+.depot-global small { display: block; font-weight: 400; font-size: 13px; opacity: .8; margin-top: 6px; }
+.toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 70; display: grid; gap: 8px; justify-items: center; pointer-events: none; width: min(640px, calc(100vw - 32px)); }
+.toast { background: #12161c; color: #fff; padding: 10px 14px; border-radius: 10px; box-shadow: var(--ombre-haute); display: flex; gap: 12px; align-items: center; animation: entree 180ms ease; pointer-events: auto; max-width: 100%; }
 .toast.erreur { background: #991b1b; }
+.toast button { border: 0; background: rgba(255,255,255,.14); color: #fff; border-radius: 6px; padding: 3px 9px; font-weight: 600; flex: none; }
+.toast button:hover { background: rgba(255,255,255,.24); }
+@keyframes entree { from { opacity: 0; transform: translateY(8px); } }
 
-@media (max-width: 1100px) {
-  #vue-cases.active { grid-template-columns: 1fr; }
-  .carte-panneau { border-left: 0; border-top: 1px solid var(--bord); }
+@media (max-width: 1400px) {
+  /* carte et ajout passent au-dessus de la table, côte à côte */
+  #vue-cases.active { display: flex; flex-direction: column; overflow: auto; height: 100%; }
+  .liste-cases { overflow: visible; }
+  .carte-panneau { order: -1; border-left: 0; border-bottom: 1px solid var(--bord); display: grid; grid-template-columns: 220px minmax(0, 1fr); grid-template-rows: auto auto 1fr; column-gap: 18px; row-gap: 10px; overflow: visible; }
+  .carte-panneau > .carte-tete { grid-column: 1 / -1; }
+  #carte { grid-row: 2 / span 3; }
+  .carte-panneau > .supprimees { grid-column: 2; }
+  .cases th { top: 0; }
 }
-@media (max-width: 820px) {
+@media (max-width: 860px) {
   body { display: block; overflow: auto; height: auto; }
-  header { flex-wrap: wrap; padding: 8px 16px; gap: 10px; }
+  header { flex-wrap: wrap; padding: 8px 16px; gap: 8px; }
   .app { display: block; }
-  aside { border-right: 0; overflow: visible; }
+  aside { border-right: 0; display: block; }
+  .defilement { overflow: visible; }
+  .generation { position: sticky; bottom: 0; z-index: 4; box-shadow: 0 -6px 16px rgba(0,0,0,.08); }
   main { display: block; }
   .onglets { position: sticky; top: 0; z-index: 5; }
-  #vue-apercu.active { height: 80vh; }
-  #vue-cases.active { display: block; height: auto; }
+  .progression { top: 0; position: sticky; }
+  #vue-apercu.active { height: 85vh; }
   .liste-cases { overflow-x: auto; }
   table.cases { min-width: 680px; }
-  #vue-rapport.active { height: auto; }
+  #vue-rapport.active, #vue-cases.active { height: auto; }
   .etapes-aide { grid-template-columns: 1fr; }
-  .titre-epreuve, .logo small, .onglets .infos { display: none; }
+  .barre-apercu select { flex: 1; min-width: 0; max-width: none; }
+  #zoom-moins, #zoom-plus, #zoom-valeur, .barre-apercu .separateur, .barre-apercu .espace { display: none; }
+  .carte-panneau { grid-template-columns: 1fr; }
+  #carte { grid-row: auto; max-width: 320px; }
+  .carte-panneau > .supprimees { grid-column: auto; }
+  .titre-epreuve, .logo small, .onglets .infos, .statut span:last-child { display: none; }
 }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: 1ms !important; transition-duration: 1ms !important; } }
 </style>
 </head>
 <body>
@@ -299,31 +360,28 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
   </div>
   <div class="titre-epreuve" id="titre-epreuve"></div>
   <div class="espace"></div>
-  <div class="statut"><span class="pastille" id="pastille"></span><span id="statut">Prêt</span></div>
-  <button class="btn" id="btn-theme" title="Thème clair / sombre" aria-label="Changer de thème">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-  </button>
-  <div class="menu" id="menu-projet">
-    <button class="btn" data-menu>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-      Projet
-    </button>
+  <div class="statut" role="status" aria-live="polite"><span class="pastille" id="pastille"></span><span id="statut">Prêt</span></div>
+  <div class="groupe">
+    <button class="btn icone" id="btn-annuler" title="Annuler (Ctrl+Z)" aria-label="Annuler" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
+    <button class="btn icone" id="btn-retablir" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button>
+  </div>
+  <button class="btn icone" id="btn-theme" title="Thème clair / sombre" aria-label="Changer de thème"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <div class="menu">
+    <button class="btn" data-menu><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Projet</button>
     <div class="menu-liste">
-      <button id="btn-ouvrir"><div>Ouvrir…<small>Projet .json ou configuration .yaml</small></div></button>
-      <button id="btn-enregistrer"><div>Enregistrer le projet<small>Options et corrections des cases</small></div></button>
+      <button id="btn-ouvrir"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><div>Ouvrir…<small>Projet .json ou configuration .yaml</small></div></button>
+      <button id="btn-enregistrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8V3M7 21v-7h10v7"/></svg><div>Enregistrer le projet<small>Options et corrections</small></div><kbd>Ctrl S</kbd></button>
+      <button id="btn-yaml"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4l-6 8 6 8M16 4l6 8-6 8"/></svg><div>Exporter la configuration<small>config.yaml pour la ligne de commande</small></div></button>
       <hr>
-      <button id="btn-yaml"><div>Exporter la configuration<small>config.yaml pour la ligne de commande</small></div></button>
+      <button id="btn-nouveau"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><div>Nouveau road book<small>Vide les fichiers et les corrections</small></div></button>
     </div>
   </div>
-  <div class="menu" id="menu-export">
-    <button class="btn primaire" data-menu id="btn-export" disabled>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-      Télécharger
-    </button>
+  <div class="menu">
+    <button class="btn primaire" data-menu id="btn-export" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Télécharger</button>
     <div class="menu-liste">
-      <button id="btn-pdf"><div>Road book PDF<small>Prêt à imprimer</small></div></button>
-      <button id="btn-csv"><div>Instructions CSV<small>Pour Excel ou un autre outil</small></div></button>
-      <button id="btn-rapport-txt"><div>Rapport de génération<small>Avertissements, cases à vérifier</small></div></button>
+      <button id="btn-pdf"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><div>Road book PDF<small>Prêt à imprimer</small></div><kbd>Ctrl D</kbd></button>
+      <button id="btn-csv"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg><div>Instructions CSV<small>Pour Excel ou un autre outil</small></div></button>
+      <button id="btn-rapport-txt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg><div>Rapport de génération<small>Avertissements, cases à vérifier</small></div></button>
     </div>
   </div>
   <input type="file" id="fichier-projet" accept=".json,.yaml,.yml">
@@ -333,74 +391,98 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
   <aside>
     <div class="bloc">
       <h2>Fichiers</h2>
-      <label class="depot" id="depot-gpx">
-        <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19c3-1 4-5 7-5s4 4 9-3"/><circle cx="4" cy="19" r="1.6" fill="currentColor"/><circle cx="20" cy="11" r="1.6" fill="currentColor"/></svg></span>
-        <div><b>Trace GPX</b><small id="nom-gpx">Glisser un fichier .gpx ou cliquer</small></div>
-        <input type="file" accept=".gpx" id="fichier-gpx">
-      </label>
-      <label class="depot" id="depot-poi">
-        <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
-        <div><b>Points d'intérêt <span class="badge" style="background:var(--panneau);color:var(--texte-3)">option</span></b><small id="nom-poi">Balises, dangers… (.csv)</small></div>
-        <input type="file" accept=".csv,.txt" id="fichier-poi" multiple>
-      </label>
-      <label class="depot" id="depot-osm">
-        <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/></svg></span>
-        <div><b>Réseau OSM hors ligne <span class="badge" style="background:var(--panneau);color:var(--texte-3)">option</span></b><small id="nom-osm">Export .osm, .osm.bz2 ou .json</small></div>
-        <input type="file" accept=".osm,.bz2,.gz,.json,.xml" id="fichier-osm" multiple>
-      </label>
-      <button class="btn primaire analyser" id="btn-analyser" disabled>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>
-        Générer le road book
-      </button>
-      <div class="bandeau" id="bandeau-analyse">Des options de détection ont changé. <b>Cliquez sur « Générer »</b> pour réanalyser la trace (les options de mise en page, elles, s'appliquent directement).</div>
+      <div class="depots">
+        <label class="depot" id="depot-gpx">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19c3-1 4-5 7-5s4 4 9-3"/><circle cx="4" cy="19" r="1.6" fill="currentColor"/><circle cx="20" cy="11" r="1.6" fill="currentColor"/></svg></span>
+          <div><b>Trace GPX</b><small id="nom-gpx">Glisser un fichier .gpx ou cliquer</small></div>
+          <input type="file" accept=".gpx" id="fichier-gpx">
+        </label>
+        <label class="depot" id="depot-poi">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+          <div><b>Points d'intérêt<span class="etiquette">option</span></b><small id="nom-poi">Balises, dangers… (.csv)</small></div>
+          <input type="file" accept=".csv,.txt" id="fichier-poi" multiple>
+        </label>
+        <label class="depot" id="depot-osm">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/></svg></span>
+          <div><b>Réseau OSM hors ligne<span class="etiquette">option</span></b><small id="nom-osm">Export .osm, .osm.bz2 ou .json</small></div>
+          <input type="file" accept=".osm,.bz2,.gz,.json,.xml" id="fichier-osm" multiple>
+        </label>
+      </div>
     </div>
-    <div id="sections"></div>
-    <div class="reinit">
-      <button class="petit-btn" id="btn-defauts">Rétablir les options par défaut</button>
+    <div class="defilement" id="defilement-options">
+      <div class="recherche-options">
+        <div class="champ-recherche">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input type="search" id="recherche-option" placeholder="Chercher une option…" aria-label="Chercher une option">
+        </div>
+        <div class="modeles" id="modeles" aria-label="Modèles de mise en page"></div>
+      </div>
+      <div id="sections"></div>
+      <div class="aucun-resultat" id="aucune-option" hidden>Aucune option ne correspond.</div>
+      <div class="bas-options"><button class="petit-btn" id="btn-defauts">Rétablir toutes les options par défaut</button></div>
+    </div>
+    <div class="generation">
+      <button class="btn primaire" id="btn-analyser" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 10a8 8 0 0 0-14.3-4.3L4 10M4 14a8 8 0 0 0 14.3 4.3L20 14"/></svg>
+        <span id="libelle-analyser">Générer le road book</span>
+      </button>
+      <div class="etat-analyse" id="etat-analyse">Déposez une trace GPX pour commencer.</div>
     </div>
   </aside>
 
   <main>
     <nav class="onglets" role="tablist">
-      <button class="actif" data-vue="apercu">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
-        Aperçu PDF <span class="compteur" id="nb-pages">–</span>
-      </button>
-      <button data-vue="cases">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        Cases <span class="compteur" id="nb-cases">–</span>
-      </button>
-      <button data-vue="rapport">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-        Rapport <span class="compteur" id="nb-avert">–</span>
-      </button>
+      <button class="actif" data-vue="apercu" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Aperçu <span class="compteur" id="nb-pages">–</span></button>
+      <button data-vue="cases" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Cases <span class="compteur" id="nb-cases">–</span></button>
+      <button data-vue="rapport" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Rapport <span class="compteur" id="nb-avert">–</span></button>
       <span class="infos" id="infos"></span>
     </nav>
+    <div class="progression" id="progression"></div>
 
     <section class="vue active" id="vue-apercu">
-      <iframe id="pdf" title="Aperçu du road book"></iframe>
+      <div class="barre-apercu" id="barre-apercu" hidden>
+        <button class="btn" id="page-prec" title="Page précédente" aria-label="Page précédente"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <select class="saisie" id="choix-page" aria-label="Aller à la page"></select>
+        <button class="btn" id="page-suiv" title="Page suivante" aria-label="Page suivante"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button>
+        <span class="separateur"></span>
+        <button class="btn" id="zoom-moins" title="Zoom arrière" aria-label="Zoom arrière"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg></button>
+        <span class="zoom-valeur" id="zoom-valeur">100 %</span>
+        <button class="btn" id="zoom-plus" title="Zoom avant" aria-label="Zoom avant"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="btn" id="zoom-ajuster" title="Ajuster à la largeur de la fenêtre">Largeur</button>
+        <button class="btn" id="zoom-page" title="Afficher la page entière">Page entière</button>
+        <div class="espace"></div>
+        <button class="btn" id="btn-onglet" title="Ouvrir le PDF dans le lecteur du navigateur"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Ouvrir le PDF</button>
+      </div>
+      <div class="visionneuse" id="visionneuse">
+        <div class="pages" id="pages"></div>
+        <iframe id="pdf-cadre" title="Aperçu du road book" hidden></iframe>
+      </div>
       <div class="vide" id="vide">
         <div class="vide-carte">
-          <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true"><rect x="10" y="6" width="52" height="60" rx="6" fill="var(--panneau)" stroke="var(--bord)" stroke-width="2"/><path d="M10 26h52M10 46h52M26 6v60M44 6v60" stroke="var(--bord)" stroke-width="2"/><path d="M35 40V32l5-4" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="35" cy="40" r="2" fill="var(--accent)"/></svg>
-          <h1>Votre road book, en quelques clics</h1>
-          <p>Chargez une trace GPX à gauche, réglez la mise en page, puis générez. L'aperçu se met à jour à chaque changement d'option.</p>
-          <div class="etapes-aide">
-            <div><b>1</b>Déposez la trace GPX (et vos balises en CSV si vous en avez).</div>
-            <div><b>2</b>Activez « Routes (OpenStreetMap) » pour les carrefours sur route.</div>
-            <div><b>3</b>Corrigez les cases à la main, puis téléchargez le PDF.</div>
+          <svg width="76" height="76" viewBox="0 0 72 72" aria-hidden="true"><rect x="10" y="6" width="52" height="60" rx="6" fill="var(--panneau)" stroke="var(--bord-fort)" stroke-width="2"/><path d="M10 26h52M10 46h52M26 6v60M44 6v60" stroke="var(--bord)" stroke-width="2"/><path d="M35 40V32l5-4" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="35" cy="40" r="2.2" fill="var(--accent)"/></svg>
+          <h1>Votre road book en quelques clics</h1>
+          <p>Déposez une trace GPX n'importe où dans la fenêtre, réglez la mise en page à gauche : l'aperçu se met à jour tout seul.</p>
+          <div class="vide-actions">
+            <button class="btn primaire" id="vide-choisir"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19V5m0 0l-5 5m5-5l5 5"/></svg>Choisir une trace GPX</button>
+            <button class="btn" id="vide-exemple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9z"/></svg>Essayer avec l'exemple</button>
           </div>
+          <div class="etapes-aide">
+            <div><b>1</b>Trace GPX, et vos balises en CSV si vous en avez.</div>
+            <div><b>2</b>Activez « Routes (OpenStreetMap) » pour les carrefours sur route.</div>
+            <div><b>3</b>Corrigez les cases dans l'onglet Cases, puis téléchargez le PDF.</div>
+          </div>
+          <div class="raccourcis"><span><kbd>Ctrl Z</kbd> annuler</span><span><kbd>Ctrl S</kbd> enregistrer</span><span><kbd>Ctrl D</kbd> PDF</span><span><kbd>Ctrl Entrée</kbd> générer</span></div>
         </div>
       </div>
-      <button class="btn ouvrir-onglet" id="btn-onglet" title="Ouvrir le PDF dans un nouvel onglet">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
-        Plein écran</button>
-      <div class="chargement" id="chargement"><span class="roue"></span><span id="chargement-texte">Mise à jour…</span></div>
     </section>
 
     <section class="vue" id="vue-cases">
       <div class="liste-cases">
         <div class="outils">
-          <input class="saisie" type="search" id="filtre" placeholder="Rechercher une case…">
+          <div class="champ-recherche">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input class="saisie" type="search" id="filtre" placeholder="Rechercher une case…" aria-label="Rechercher une case">
+          </div>
           <label><input type="checkbox" id="filtre-verifier"> Seulement les cases à vérifier</label>
         </div>
         <table class="cases" id="table-cases">
@@ -409,17 +491,17 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
         </table>
       </div>
       <div class="carte-panneau">
-        <div class="carte-tete"><h3>Carte</h3><select class="saisie" id="choix-etape"></select></div>
-        <svg id="carte" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
-        <h3>Ajouter une case</h3>
+        <div class="carte-tete"><h3 class="sous-titre">Carte</h3><select class="saisie" id="choix-etape" aria-label="Étape affichée"></select></div>
+        <svg id="carte" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Carte de l'étape"></svg>
+        <h3 class="sous-titre" style="margin:0">Ajouter une case</h3>
         <div class="formulaire-ajout">
           <div class="rang">
-            <select class="saisie" id="ajout-etape"></select>
-            <input class="saisie" id="ajout-km" type="number" step="0.01" min="0" placeholder="km">
+            <select class="saisie" id="ajout-etape" aria-label="Étape"></select>
+            <input class="saisie" id="ajout-km" type="number" step="0.01" min="0" placeholder="km" aria-label="Kilomètre">
           </div>
           <input class="saisie" id="ajout-desc" type="text" placeholder="Description (ex. TD, AG SUR PP)">
           <input class="saisie" id="ajout-notes" type="text" placeholder="Note (facultatif)">
-          <button class="btn" id="btn-ajout">Ajouter la case</button>
+          <button class="btn" id="btn-ajout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Ajouter la case</button>
         </div>
         <div class="supprimees" id="supprimees"></div>
       </div>
@@ -434,7 +516,8 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
     </section>
   </main>
 </div>
-<div class="toast" id="toast"></div>
+<div class="depot-global" id="depot-global"><div>Déposez vos fichiers<small>.gpx · .csv · .osm/.bz2 · projet .json · config .yaml</small></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
 "use strict";
@@ -444,61 +527,156 @@ const stock = {
   lire(k) { try { return JSON.parse(localStorage.getItem("roadbook." + k)); } catch { return null; } },
   ecrire(k, v) { try { localStorage.setItem("roadbook." + k, JSON.stringify(v)); } catch {} },
 };
+// fichiers du dernier travail (IndexedDB : peut dépasser la taille de localStorage)
+const base = {
+  ouvrir() {
+    return new Promise((ok, ko) => {
+      try {
+        const r = indexedDB.open("roadbook", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("fichiers");
+        r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+      } catch (e) { ko(e); }
+    });
+  },
+  async lire(cle) {
+    try { const db = await this.ouvrir(); return await new Promise((ok) => { const r = db.transaction("fichiers").objectStore("fichiers").get(cle); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); }); }
+    catch { return null; }
+  },
+  async ecrire(cle, v) {
+    try { const db = await this.ouvrir(); db.transaction("fichiers", "readwrite").objectStore("fichiers").put(v, cle); } catch {}
+  },
+};
+
 const E = {
   sections: [], defauts: null, config: null, fichiers: { gpx: null, pois: [], osm: [] },
-  session: null, cases: [], etapes: [], modifs: { cases: {}, ajouts: [] }, pdfUrl: null, pdfOctets: null,
-  avertissements: [], rapport: "", pages: 0, perimee: false, selection: null, etapeCarte: null,
+  session: null, empreinteSession: null, revision: 0, imagesOk: true,
+  cases: [], etapes: [], listePages: [], modifs: { cases: {}, ajouts: [] },
+  avertissements: [], rapport: "", pages: 0, selection: null, etapeCarte: null,
 };
 
 // ------------------------------------------------------------------ utilitaires
 const copie = (o) => JSON.parse(JSON.stringify(o));
+const egal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function lire(obj, chemin) { return chemin.split(".").reduce((o, k) => (o == null ? o : o[k]), obj); }
-function ecrire(obj, chemin, v) {
-  const k = chemin.split("."); let o = obj;
-  for (const c of k.slice(0, -1)) o = o[c] ??= {};
-  o[k.at(-1)] = v;
-}
-function fusion(base, ajout) {
-  const r = copie(base);
+function ecrire(obj, chemin, v) { const k = chemin.split("."); let o = obj; for (const c of k.slice(0, -1)) o = o[c] ??= {}; o[k.at(-1)] = v; }
+function fusion(base_, ajout) {
+  const r = copie(base_);
   for (const [k, v] of Object.entries(ajout || {})) {
     if (v && typeof v === "object" && !Array.isArray(v) && r[k] && typeof r[k] === "object" && !Array.isArray(r[k]) && k !== "abreviations") r[k] = fusion(r[k], v);
     else r[k] = v;
   }
   return r;
 }
-function km(v, d) { return v.toFixed(d).replace(".", E.config.affichage.separateur_decimal); }
+function km(v, d) { return Number(v).toFixed(d).replace(".", E.config.affichage.separateur_decimal); }
 function echapper(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-let minuteurToast;
-function toast(msg, erreur = false) {
-  const t = $("#toast"); t.textContent = msg; t.className = "toast visible" + (erreur ? " erreur" : "");
-  clearTimeout(minuteurToast); minuteurToast = setTimeout(() => (t.className = "toast"), erreur ? 6000 : 2600);
+const svg = (d, t = 16) => `<svg width="${t}" height="${t}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+function toast(msg, { erreur = false, action = null, duree } = {}) {
+  const t = document.createElement("div"); t.className = "toast" + (erreur ? " erreur" : "");
+  t.innerHTML = `<span>${echapper(msg)}</span>`;
+  if (action) { const b = document.createElement("button"); b.textContent = action.libelle; b.onclick = () => { action.faire(); t.remove(); }; t.append(b); }
+  const zone = $("#toasts"); zone.append(t);
+  while (zone.children.length > 3) zone.firstChild.remove();
+  setTimeout(() => t.remove(), duree ?? (erreur ? 7000 : action ? 5000 : 2600));
 }
 function statut(texte, etat = "") { $("#statut").textContent = texte; $("#pastille").className = "pastille " + etat; }
 function telecharger(nom, contenu, type) {
-  const url = URL.createObjectURL(contenu instanceof Blob ? contenu : new Blob([contenu], { type }));
+  const url = typeof contenu === "string" && contenu.startsWith("/api/") ? contenu : URL.createObjectURL(contenu instanceof Blob ? contenu : new Blob([contenu], { type }));
   const a = Object.assign(document.createElement("a"), { href: url, download: nom });
-  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  document.body.append(a); a.click(); a.remove();
+  if (url.startsWith("blob:")) setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 function nomFichier(ext) {
-  const base = (E.config.epreuve.nom || "roadbook").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w-]+/g, "_").replace(/^_|_$/g, "");
-  return (base || "roadbook") + ext;
+  const b = (E.config.epreuve.nom || "roadbook").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w-]+/g, "_").replace(/^_|_$/g, "");
+  return (b || "roadbook") + ext;
 }
-async function api(chemin, corps) {
-  const r = await fetch(chemin, { method: corps ? "POST" : "GET", headers: { "Content-Type": "application/json" }, body: corps ? JSON.stringify(corps) : undefined });
+async function api(chemin, corps, signal) {
+  const r = await fetch(chemin, { method: corps ? "POST" : "GET", headers: { "Content-Type": "application/json" }, body: corps ? JSON.stringify(corps) : undefined, signal });
   const d = await r.json().catch(() => ({ erreur: "réponse illisible du serveur" }));
   if (!r.ok) throw new Error(d.erreur || r.statusText);
   return d;
 }
 function lireFichier(f, binaire) {
   return new Promise((ok, ko) => {
-    const lecteur = new FileReader();
-    lecteur.onerror = () => ko(lecteur.error);
-    if (binaire) { lecteur.onload = () => ok({ nom: f.name, base64: String(lecteur.result).split(",")[1] || "" }); lecteur.readAsDataURL(f); }
-    else { lecteur.onload = () => ok({ nom: f.name, texte: lecteur.result }); lecteur.readAsText(f); }
+    const l = new FileReader(); l.onerror = () => ko(l.error);
+    if (binaire) { l.onload = () => ok({ nom: f.name, base64: String(l.result).split(",")[1] || "" }); l.readAsDataURL(f); }
+    else { l.onload = () => ok({ nom: f.name, texte: l.result }); l.readAsText(f); }
+  });
+}
+const enSaisie = (el) => el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
+
+// ------------------------------------------------------------------ historique (annuler / rétablir)
+const H = { pile: [], index: -1, minuteur: null };
+function memoriser(immediat = false) {
+  clearTimeout(H.minuteur);
+  const faire = () => {
+    const etat = JSON.stringify({ config: E.config, modifs: E.modifs });
+    if (H.pile[H.index] === etat) return;
+    H.pile = H.pile.slice(0, H.index + 1); H.pile.push(etat);
+    if (H.pile.length > 150) H.pile.shift();
+    H.index = H.pile.length - 1; majHistorique();
+  };
+  if (immediat) faire(); else H.minuteur = setTimeout(faire, 300);
+}
+function majHistorique() { $("#btn-annuler").disabled = H.index <= 0; $("#btn-retablir").disabled = H.index >= H.pile.length - 1; }
+function deplacerHistorique(delta) {
+  clearTimeout(H.minuteur);
+  const i = H.index + delta; if (i < 0 || i >= H.pile.length) return;
+  H.index = i; const e = JSON.parse(H.pile[i]);
+  E.config = e.config; E.modifs = e.modifs; persister();
+  construireOptions(); majTitre(); majHistorique(); majEtatAnalyse();
+  if (E.session && !analysePerimee()) planifierRendu(0);
+  toast(delta < 0 ? "Annulé" : "Rétabli", { duree: 1200 });
+}
+function persister() { stock.ecrire("config", E.config); stock.ecrire("modifs", E.modifs); }
+
+// ------------------------------------------------------------------ analyse périmée ?
+function empreinteAnalyse(cfg) {
+  const champs = E.sections.flatMap((s) => s.champs).filter((c) => c.impact === "analyse").map((c) => lire(cfg, c.chemin));
+  return JSON.stringify([champs, cfg.calcul.rond_point, cfg.osm, cfg.calcul.doublon_m, cfg.calcul.saut_max_m]);
+}
+const analysePerimee = () => !!E.session && empreinteAnalyse(E.config) !== E.empreinteSession;
+function majEtatAnalyse() {
+  const el = $("#etat-analyse"), btn = $("#btn-analyser");
+  btn.disabled = !E.fichiers.gpx;
+  if (!E.fichiers.gpx) { el.className = "etat-analyse"; el.textContent = "Déposez une trace GPX pour commencer."; $("#libelle-analyser").textContent = "Générer le road book"; return; }
+  if (!E.session) { el.className = "etat-analyse"; el.innerHTML = `Prêt à générer · <kbd>Ctrl Entrée</kbd>`; $("#libelle-analyser").textContent = "Générer le road book"; return; }
+  if (analysePerimee()) {
+    el.className = "etat-analyse perimee"; el.innerHTML = svg('<path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/>', 14) + "Options de détection modifiées : regénérez";
+    $("#libelle-analyser").textContent = "Regénérer avec les nouvelles options";
+  } else {
+    el.className = "etat-analyse ok"; el.innerHTML = svg('<path d="M5 12l5 5L20 7"/>', 14) + "À jour · la mise en page s'applique en direct";
+    $("#libelle-analyser").textContent = "Regénérer le road book";
+  }
+}
+
+// ------------------------------------------------------------------ modèles de mise en page
+const MODELES = [
+  { nom: "Carnet A5", aide: "Comme les carnets 4L Trophy", cfg: { affichage: { format: "a5", hauteur_case_mm: 25, lignes_par_page: null, colonnes_pct: [22, 26, 52], textes: "abrege", majuscules: true, couleurs: true, lignes_alternees: true, mini_carte: false, page_garde: true, page_legende: true } } },
+  { nom: "A4 confort", aide: "Grandes cases et mini-carte", cfg: { affichage: { format: "a4", hauteur_case_mm: 30, lignes_par_page: null, colonnes_pct: [22, 28, 50], mini_carte: true, couleurs: true } } },
+  { nom: "Rouleau", aide: "Bande continue pour porte-road-book", cfg: { affichage: { format: "rouleau", largeur_rouleau_mm: 148, hauteur_case_mm: 25, page_garde: false, page_legende: false, lignes_alternees: false } } },
+  { nom: "Noir et blanc", aide: "Impression monochrome économique", cfg: { affichage: { couleurs: false, lignes_alternees: true } } },
+];
+function construireModeles() {
+  const zone = $("#modeles"); zone.innerHTML = "";
+  for (const m of MODELES) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "modele"; b.title = m.aide; b.textContent = m.nom;
+    b.onclick = () => {
+      E.config = fusion(E.config, m.cfg); persister(); construireOptions(); majTitre(); memoriser(true);
+      if (E.session) planifierRendu(0);
+      toast(`Modèle « ${m.nom} » appliqué`, { action: { libelle: "Annuler", faire: () => deplacerHistorique(-1) } });
+    };
+    zone.append(b);
+  }
+  majModeles();
+}
+function majModeles() {
+  $$(".modele").forEach((b, k) => {
+    const cfg = MODELES[k].cfg.affichage;
+    b.classList.toggle("actif", Object.entries(cfg).every(([c, v]) => egal(E.config.affichage[c], v)));
   });
 }
 
-// ------------------------------------------------------------------ icônes des sections
+// ------------------------------------------------------------------ formulaire d'options
 const ICONES = {
   flag: '<path d="M5 21V4m0 0h11l-2 4 2 4H5"/>',
   layout: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M10 9v12"/>',
@@ -507,43 +685,46 @@ const ICONES = {
   turn: '<path d="M6 20v-6a5 5 0 0 1 5-5h8"/><path d="M15 5l4 4-4 4"/>',
   road: '<path d="M8 3L4 21M16 3l4 18M12 5v2m0 4v2m0 4v2"/>',
 };
-const svg = (d, t = 16) => `<svg width="${t}" height="${t}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-
-// ------------------------------------------------------------------ formulaire d'options
 function construireOptions() {
   const conteneur = $("#sections"); conteneur.innerHTML = "";
   const ouvertes = stock.lire("sections") || ["epreuve", "page"];
   for (const s of E.sections) {
     const d = document.createElement("details");
     d.className = "section"; d.open = ouvertes.includes(s.id); d.dataset.id = s.id;
-    d.innerHTML = `<summary><span class="ico">${svg(ICONES[s.icone] || "")}</span>${echapper(s.titre)}<span class="chevron">${svg('<path d="M9 6l6 6-6 6"/>', 14)}</span></summary><div class="champs"></div>`;
-    d.addEventListener("toggle", () => stock.ecrire("sections", $$("details.section").filter((x) => x.open).map((x) => x.dataset.id)));
+    d.innerHTML = `<summary><span class="ico">${svg(ICONES[s.icone] || "")}</span>${echapper(s.titre)}<span class="nb-modifs" hidden></span><span class="chevron">${svg('<path d="M9 6l6 6-6 6"/>', 14)}</span></summary><div class="champs"></div>`;
+    d.addEventListener("toggle", () => { if (!$("#recherche-option").value) stock.ecrire("sections", $$("details.section").filter((x) => x.open).map((x) => x.dataset.id)); });
     const champs = $(".champs", d);
     for (const c of s.champs) champs.append(construireChamp(c));
     conteneur.append(d);
   }
+  majIndicateurs(); filtrerOptions();
 }
-
+function enteteChamp(c, lienId) {
+  const badge = c.impact === "analyse" ? '<span class="badge" title="Changer cette option demande de regénérer">analyse</span>' : "";
+  return `<div class="tete"><label class="lib" ${lienId ? `for="${lienId}"` : ""}>${echapper(c.libelle)}</label>${badge}<button type="button" class="reinit-champ" title="Valeur par défaut" aria-label="Rétablir la valeur par défaut">${svg('<path d="M4 4v6h6"/><path d="M4 10a8 8 0 1 1 2.3 5.7"/>', 13)}</button></div>`;
+}
 function construireChamp(c) {
   const el = document.createElement("div"); el.className = "champ"; el.dataset.chemin = c.chemin;
-  const badge = c.impact === "analyse" ? ' <span class="badge" title="Nécessite de regénérer">analyse</span>' : "";
+  el.dataset.recherche = (c.libelle + " " + (c.aide || "")).toLowerCase();
   const aide = c.aide ? `<div class="aide">${echapper(c.aide)}</div>` : "";
   const v = lire(E.config, c.chemin);
+  const id = "o-" + c.chemin.replace(/\./g, "-");
   const changer = (val) => majOption(c, val);
   switch (c.type) {
     case "booleen": {
-      el.innerHTML = `<div class="interrupteur"><label class="lib" for="o-${c.chemin}">${echapper(c.libelle)}${badge}</label><label class="bascule"><input type="checkbox" id="o-${c.chemin}"><span></span></label></div>${aide}`;
+      el.innerHTML = `<div class="interrupteur">${enteteChamp(c, id)}<label class="bascule"><input type="checkbox" id="${id}"><span></span></label></div>${aide}`;
       const i = $("input", el); i.checked = !!v; i.onchange = () => changer(i.checked);
       break;
     }
     case "choix": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}${badge}</label>`;
+      el.innerHTML = enteteChamp(c);
       if (c.choix.length <= 3) {
-        const seg = document.createElement("div"); seg.className = "segments";
+        const seg = document.createElement("div"); seg.className = "segments"; seg.setAttribute("role", "radiogroup");
         c.choix.forEach((ch) => {
-          const b = document.createElement("button"); b.type = "button"; b.textContent = ch.libelle;
+          const b = document.createElement("button"); b.type = "button"; b.textContent = ch.libelle; b.title = ch.libelle;
+          b.setAttribute("role", "radio"); b.setAttribute("aria-checked", ch.valeur === v);
           b.classList.toggle("actif", ch.valeur === v);
-          b.onclick = () => { $$("button", seg).forEach((x) => x.classList.remove("actif")); b.classList.add("actif"); changer(ch.valeur); };
+          b.onclick = () => { $$("button", seg).forEach((x) => { x.classList.remove("actif"); x.setAttribute("aria-checked", false); }); b.classList.add("actif"); b.setAttribute("aria-checked", true); changer(ch.valeur); };
           seg.append(b);
         });
         el.append(seg);
@@ -556,45 +737,49 @@ function construireChamp(c) {
       break;
     }
     case "curseur": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}${badge}</label><div class="curseur"><input type="range" min="${c.min}" max="${c.max}" step="${c.pas}"><span class="valeur"></span></div>${aide}`;
+      el.innerHTML = `${enteteChamp(c, id)}<div class="curseur"><input type="range" id="${id}" min="${c.min}" max="${c.max}" step="${c.pas}"><span class="valeur"></span></div>${aide}`;
       const i = $("input", el), val = $(".valeur", el);
-      const montrer = () => (val.textContent = `${i.value} ${c.unite || ""}`);
+      const montrer = () => (val.textContent = `${i.value} ${c.unite || ""}`.trim());
       i.value = v; montrer();
       i.oninput = montrer; i.onchange = () => changer(Number(i.value));
       break;
     }
     case "nombre": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}${badge}</label><div class="avec-unite"><input type="number" min="${c.min ?? ""}" max="${c.max ?? ""}" step="${c.pas ?? "any"}" ${c.vide ? 'placeholder="auto"' : ""}><span>${echapper(c.unite || "")}</span></div>${aide}`;
+      el.innerHTML = `${enteteChamp(c, id)}<div class="avec-unite"><input type="number" id="${id}" min="${c.min ?? ""}" max="${c.max ?? ""}" step="${c.pas ?? "any"}" ${c.vide ? 'placeholder="automatique"' : ""}><span>${echapper(c.unite || "")}</span></div>${aide}`;
       const i = $("input", el); i.value = v ?? "";
       i.onchange = () => {
         if (i.value === "" && c.vide) return changer(null);
-        const n = Number(i.value);
-        if (Number.isFinite(n)) changer(n); else i.value = lire(E.config, c.chemin) ?? "";
+        let n = Number(i.value);
+        if (!Number.isFinite(n) || i.value === "") { i.value = lire(E.config, c.chemin) ?? ""; return; }
+        if (c.min != null) n = Math.max(c.min, n);
+        if (c.max != null) n = Math.min(c.max, n);
+        i.value = n; changer(n);
       };
       break;
     }
     case "texte": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}${badge}</label><input type="text" placeholder="${echapper(c.placeholder || "")}">${aide}`;
-      const i = $("input", el); i.value = v ?? ""; i.onchange = () => changer(i.value.trim() || (c.chemin === "epreuve.depart_prevu" ? null : ""));
+      el.innerHTML = `${enteteChamp(c, id)}<input type="text" id="${id}" placeholder="${echapper(c.placeholder || "")}">${aide}`;
+      const i = $("input", el); i.value = v ?? "";
+      i.onchange = () => changer(i.value.trim() || (c.chemin === "epreuve.depart_prevu" ? null : ""));
+      if (c.chemin === "epreuve.nom") i.oninput = () => ($("#titre-epreuve").textContent = i.value);
       break;
     }
     case "liste": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}${badge}</label><textarea rows="3"></textarea>${aide}`;
+      el.innerHTML = `${enteteChamp(c, id)}<textarea id="${id}" rows="3"></textarea>${aide}`;
       const t = $("textarea", el); t.value = (v || []).join("\n");
       t.onchange = () => changer(t.value.split("\n").map((x) => x.trim()).filter(Boolean));
       break;
     }
     case "colonnes": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}</label><div class="colonnes-apercu"></div><div class="triple"></div>${aide}`;
-      const apercu = $(".colonnes-apercu", el), tri = $(".triple", el);
-      const vals = [...v];
+      el.innerHTML = `${enteteChamp(c)}<div class="colonnes-apercu"></div><div class="triple"></div>${aide}`;
+      const apercu = $(".colonnes-apercu", el), tri = $(".triple", el), vals = [...v];
       const dessiner = () => {
         const tot = vals.reduce((a, b) => a + b, 0);
-        apercu.innerHTML = vals.map((x, k) => `<div style="width:${(100 * x) / tot}%">${c.noms[k]}</div>`).join("");
+        apercu.innerHTML = vals.map((x, k) => `<div style="width:${(100 * x) / tot}%">${c.noms[k]} · ${Math.round((100 * x) / tot)} %</div>`).join("");
       };
       vals.forEach((x, k) => {
         const w = document.createElement("div");
-        w.innerHTML = `<small>${c.noms[k]} %</small><input class="saisie" type="number" min="5" max="80" step="1">`;
+        w.innerHTML = `<small>${c.noms[k]}</small><input class="saisie" type="number" min="5" max="80" step="1" aria-label="${c.noms[k]} (%)">`;
         const i = $("input", w); i.value = x;
         i.oninput = () => { vals[k] = Math.max(5, Number(i.value) || 5); dessiner(); };
         i.onchange = () => changer([...vals]);
@@ -604,52 +789,75 @@ function construireChamp(c) {
       break;
     }
     case "triple": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}${badge}</label><div class="triple"></div>${aide}`;
+      el.innerHTML = `${enteteChamp(c)}<div class="triple"></div>${aide}`;
       const tri = $(".triple", el), vals = [...v];
       vals.forEach((x, k) => {
         const w = document.createElement("div");
-        w.innerHTML = `<small>${c.noms[k]} ≤ ${c.unite || ""}</small><input class="saisie" type="number" min="1" max="180" step="1">`;
+        w.innerHTML = `<small>${c.noms[k]} ≤ ${c.unite || ""}</small><input class="saisie" type="number" min="1" max="180" step="1" aria-label="${c.noms[k]}">`;
         const i = $("input", w); i.value = x;
         i.onchange = () => {
-          vals[k] = Number(i.value);
-          if (vals[0] < vals[1] && vals[1] < vals[2]) changer([...vals]);
-          else toast("Les bornes doivent être croissantes", true);
+          const essai = [...vals]; essai[k] = Number(i.value);
+          if (essai[0] < essai[1] && essai[1] < essai[2]) { vals[k] = essai[k]; changer([...vals]); }
+          else { i.value = vals[k]; toast("Les bornes doivent être croissantes", { erreur: true }); }
         };
         tri.append(w);
       });
       break;
     }
     case "dictionnaire": {
-      el.innerHTML = `<label class="lib">${echapper(c.libelle)}</label><div class="dico"></div><button type="button" class="petit-btn">+ Ajouter</button>${aide}`;
-      const dico = $(".dico", el);
-      const entrees = Object.entries(v || {});
+      el.innerHTML = `${enteteChamp(c)}<div class="dico"></div><button type="button" class="petit-btn" style="margin-top:6px">+ Ajouter une abréviation</button>${aide}`;
+      const dico = $(".dico", el), entrees = Object.entries(v || {});
       const valider = () => changer(Object.fromEntries(entrees.filter(([a, b]) => a.trim() && b.trim())));
       const dessiner = () => {
         dico.innerHTML = "";
         entrees.forEach((e, k) => {
           const l = document.createElement("div"); l.className = "dico-ligne";
-          l.innerHTML = `<input class="saisie" placeholder="texte long"><input class="saisie" placeholder="abrév."><button type="button" title="Retirer">×</button>`;
+          l.innerHTML = `<input class="saisie" placeholder="texte long" aria-label="Texte long"><input class="saisie" placeholder="abrév." aria-label="Abréviation"><button type="button" title="Retirer" aria-label="Retirer">×</button>`;
           const [a, b] = $$("input", l); a.value = e[0]; b.value = e[1];
           a.onchange = () => { e[0] = a.value; valider(); }; b.onchange = () => { e[1] = b.value; valider(); };
           $("button", l).onclick = () => { entrees.splice(k, 1); dessiner(); valider(); };
           dico.append(l);
         });
       };
-      $(".petit-btn", el).onclick = () => { entrees.push(["", ""]); dessiner(); };
+      $(".petit-btn", el).onclick = () => { entrees.push(["", ""]); dessiner(); $$("input", dico).at(-2)?.focus(); };
       dessiner();
       break;
     }
   }
+  $(".reinit-champ", el).onclick = () => {
+    majOption(c, copie(lire(E.defauts, c.chemin)));
+    el.replaceWith(construireChamp(c)); majIndicateurs();
+  };
   return el;
 }
-
 function majOption(champ, valeur) {
   ecrire(E.config, champ.chemin, valeur);
-  stock.ecrire("config", E.config);
-  majTitre();
-  if (!E.session) return;
-  if (champ.impact === "analyse") { E.perimee = true; $("#bandeau-analyse").classList.add("visible"); }
-  else planifierRendu();
+  persister(); majTitre(); majIndicateurs(); memoriser(); majEtatAnalyse();
+  if (E.session && champ.impact !== "analyse" && !analysePerimee()) planifierRendu();
+}
+function majIndicateurs() {
+  for (const d of $$("details.section")) {
+    let n = 0;
+    for (const el of $$(".champ", d)) {
+      const m = !egal(lire(E.config, el.dataset.chemin), lire(E.defauts, el.dataset.chemin));
+      el.classList.toggle("modifie", m); if (m) n++;
+    }
+    const b = $(".nb-modifs", d); b.hidden = !n; b.textContent = `${n} modifiée${n > 1 ? "s" : ""}`;
+  }
+  majModeles();
+}
+function filtrerOptions() {
+  const q = $("#recherche-option").value.trim().toLowerCase();
+  let total = 0;
+  for (const d of $$("details.section")) {
+    let n = 0;
+    for (const el of $$(".champ", d)) { const ok = !q || el.dataset.recherche.includes(q); el.hidden = !ok; if (ok) n++; }
+    d.hidden = q && !n; total += n;
+    if (q && n) d.open = true;
+  }
+  if (!q) { const ouvertes = stock.lire("sections") || ["epreuve", "page"]; $$("details.section").forEach((d) => (d.open = ouvertes.includes(d.dataset.id))); }
+  $("#aucune-option").hidden = total > 0;
+  if (q) $("#defilement-options").scrollTop = 0;
 }
 function majTitre() {
   $("#titre-epreuve").textContent = E.config.epreuve.nom || "";
@@ -657,89 +865,96 @@ function majTitre() {
 }
 
 // ------------------------------------------------------------------ fichiers
-function brancherDepot(id, cle, multiple, binaire) {
-  const depot = $("#depot-" + id), entree = $("#fichier-" + id);
-  const prendre = async (liste) => {
-    const fichiers = [...liste]; if (!fichiers.length) return;
+function classer(nom) {
+  const n = nom.toLowerCase();
+  if (n.endsWith(".gpx")) return "gpx";
+  if (n.endsWith(".csv") || n.endsWith(".txt")) return "pois";
+  if (n.endsWith(".yaml") || n.endsWith(".yml") || n.endsWith(".roadbook.json")) return "projet";
+  if (/\.(osm|bz2|gz|xml|json)$/.test(n)) return "osm";
+  return null;
+}
+async function prendreFichiers(liste, cible) {
+  const fichiers = [...liste]; if (!fichiers.length) return;
+  let nouveauGpx = false;
+  for (const f of fichiers) {
+    const cle = cible || classer(f.name);
+    if (!cle) { toast(`« ${f.name} » : type de fichier non reconnu`, { erreur: true }); continue; }
+    if (cle === "projet") { await ouvrirProjet(f); continue; }
     try {
-      const lus = await Promise.all(fichiers.map((f) => lireFichier(f, binaire)));
-      if (multiple) E.fichiers[cle] = E.fichiers[cle].concat(lus); else E.fichiers[cle] = lus[0];
-      majDepots();
-      if (cle === "gpx") analyser();
-    } catch (e) { toast("Lecture impossible : " + e.message, true); }
-  };
-  entree.onchange = () => { prendre(entree.files); entree.value = ""; };
-  depot.addEventListener("dragover", (e) => { e.preventDefault(); depot.classList.add("survol"); });
+      const lu = await lireFichier(f, cle === "osm");
+      if (cle === "gpx") { E.fichiers.gpx = lu; nouveauGpx = true; }
+      else E.fichiers[cle] = E.fichiers[cle].filter((x) => x.nom !== lu.nom).concat(lu);
+    } catch (e) { toast(`Lecture impossible : ${e.message}`, { erreur: true }); }
+  }
+  majDepots(); base.ecrire("dernier", E.fichiers);
+  if (nouveauGpx || E.session) analyser();
+}
+function brancherDepot(id, cle) {
+  const depot = $("#depot-" + id), entree = $("#fichier-" + id);
+  entree.onchange = () => { prendreFichiers(entree.files, cle); entree.value = ""; };
+  depot.addEventListener("dragover", (e) => { e.preventDefault(); e.stopPropagation(); depot.classList.add("survol"); });
   depot.addEventListener("dragleave", () => depot.classList.remove("survol"));
-  depot.addEventListener("drop", (e) => { e.preventDefault(); depot.classList.remove("survol"); prendre(e.dataTransfer.files); });
+  depot.addEventListener("drop", (e) => { e.preventDefault(); e.stopPropagation(); depot.classList.remove("survol"); $("#depot-global").classList.remove("visible"); prendreFichiers(e.dataTransfer.files, cle); });
 }
 function majDepots() {
-  const g = E.fichiers.gpx;
-  const dessiner = (id, liste, defaut) => {
+  const dessiner = (id, cle, liste, defaut) => {
     const depot = $("#depot-" + id), nom = $("#nom-" + id);
     depot.classList.toggle("rempli", liste.length > 0);
     $(".retirer", depot)?.remove();
     if (!liste.length) { nom.textContent = defaut; return; }
-    nom.textContent = liste.map((f) => f.nom).join(", ");
+    nom.textContent = liste.map((f) => f.nom).join(", "); nom.title = nom.textContent;
     const b = document.createElement("button");
-    b.className = "retirer"; b.type = "button"; b.title = "Retirer"; b.innerHTML = svg('<path d="M6 6l12 12M18 6L6 18"/>');
-    b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); if (id === "gpx") E.fichiers.gpx = null; else E.fichiers[id === "poi" ? "pois" : "osm"] = []; majDepots(); };
+    b.className = "retirer"; b.type = "button"; b.title = "Retirer"; b.setAttribute("aria-label", "Retirer le fichier"); b.innerHTML = svg('<path d="M6 6l12 12M18 6L6 18"/>', 15);
+    b.onclick = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (cle === "gpx") E.fichiers.gpx = null; else E.fichiers[cle] = [];
+      majDepots(); base.ecrire("dernier", E.fichiers);
+      if (cle !== "gpx" && E.session) analyser();
+    };
     depot.append(b);
   };
-  dessiner("gpx", g ? [g] : [], "Glisser un fichier .gpx ou cliquer");
-  dessiner("poi", E.fichiers.pois, "Balises, dangers… (.csv)");
-  dessiner("osm", E.fichiers.osm, "Export .osm, .osm.bz2 ou .json");
-  $("#btn-analyser").disabled = !g;
+  dessiner("gpx", "gpx", E.fichiers.gpx ? [E.fichiers.gpx] : [], "Glisser un fichier .gpx ou cliquer");
+  dessiner("poi", "pois", E.fichiers.pois, "Balises, dangers… (.csv)");
+  dessiner("osm", "osm", E.fichiers.osm, "Export .osm, .osm.bz2 ou .json");
+  majEtatAnalyse();
 }
 
 // ------------------------------------------------------------------ génération
-let enCours = 0;
-function occupe(oui, texte) {
-  enCours += oui ? 1 : -1;
-  $("#chargement").classList.toggle("visible", enCours > 0);
-  if (texte) $("#chargement-texte").textContent = texte;
-}
+let enCours = 0, controleurRendu = null;
+function occupe(oui) { enCours = Math.max(0, enCours + (oui ? 1 : -1)); $("#progression").classList.toggle("visible", enCours > 0); }
 async function analyser() {
   if (!E.fichiers.gpx) return;
-  occupe(true, E.config.osm.actif ? "Analyse et téléchargement OpenStreetMap…" : "Analyse de la trace…");
-  statut("Analyse…", "travail"); $("#btn-analyser").disabled = true;
+  controleurRendu?.abort();
+  occupe(true); $("#btn-analyser").disabled = true;
+  statut(E.config.osm.actif ? "Analyse et OpenStreetMap…" : "Analyse de la trace…", "travail");
   try {
     const d = await api("/api/analyser", { gpx: E.fichiers.gpx, pois: E.fichiers.pois, osm: E.fichiers.osm, config: E.config, modifications: E.modifs });
-    E.session = d.session; E.etapes = d.etapes; E.perimee = false;
-    $("#bandeau-analyse").classList.remove("visible");
-    appliquerResultat(d);
+    E.session = d.session; E.etapes = d.etapes; E.empreinteSession = empreinteAnalyse(E.config);
+    appliquerResultat(d); remplirEtapes();
     if (d.journal?.length) toast(d.journal.at(-1));
-    remplirEtapes();
-  } catch (e) { statut("Erreur", "erreur"); toast(e.message, true); }
-  finally { occupe(false); $("#btn-analyser").disabled = !E.fichiers.gpx; }
+  } catch (e) { statut("Erreur", "erreur"); toast(e.message, { erreur: true }); }
+  finally { occupe(false); majEtatAnalyse(); }
 }
-let minuteurRendu, numeroRendu = 0;
-function planifierRendu(delai = 450) { clearTimeout(minuteurRendu); minuteurRendu = setTimeout(rendre, delai); }
+let minuteurRendu;
+function planifierRendu(delai = 350) { clearTimeout(minuteurRendu); minuteurRendu = setTimeout(rendre, delai); }
 async function rendre() {
   if (!E.session) return;
-  const n = ++numeroRendu;
-  occupe(true, "Mise à jour de l'aperçu…"); statut("Mise à jour…", "travail");
+  controleurRendu?.abort();
+  const ctrl = (controleurRendu = new AbortController());
+  occupe(true); statut("Mise à jour…", "travail");
   try {
-    const d = await api("/api/rendu", { session: E.session, config: E.config, modifications: E.modifs });
-    if (n === numeroRendu) appliquerResultat(d);
+    const d = await api("/api/rendu", { session: E.session, config: E.config, modifications: E.modifs }, ctrl.signal);
+    if (ctrl === controleurRendu) appliquerResultat(d);
   } catch (e) {
-    statut("Erreur", "erreur"); toast(e.message, true);
-    if (/session/.test(e.message)) E.session = null;
+    if (e.name === "AbortError") return;
+    statut("Erreur", "erreur"); toast(e.message, { erreur: true });
+    if (/session/.test(e.message)) { E.session = null; majEtatAnalyse(); }
   } finally { occupe(false); }
 }
 function appliquerResultat(d) {
   E.cases = d.cases; E.avertissements = d.avertissements; E.rapport = d.rapport; E.pages = d.pages;
-  if (d.analyse_perimee) $("#bandeau-analyse").classList.add("visible");
-  if (d.pdf) {
-    const octets = Uint8Array.from(atob(d.pdf), (c) => c.charCodeAt(0));
-    E.pdfOctets = octets;
-    const ancien = E.pdfUrl;
-    E.pdfUrl = URL.createObjectURL(new Blob([octets], { type: "application/pdf" }));
-    $("#pdf").src = E.pdfUrl + "#view=FitH";
-    if (ancien) setTimeout(() => URL.revokeObjectURL(ancien), 4000);
-    $("#vide").style.display = "none";
-    $("#btn-onglet").classList.add("visible");
-  }
+  E.listePages = d.liste_pages || []; E.revision = d.revision; E.imagesOk = d.apercu_images;
+  $("#vide").hidden = true; $("#barre-apercu").hidden = false;
   $("#btn-export").disabled = false;
   const nbVerif = E.cases.filter((c) => c.remarques.length).length;
   $("#nb-pages").textContent = E.pages; $("#nb-cases").textContent = E.cases.length;
@@ -747,8 +962,117 @@ function appliquerResultat(d) {
   $("#nb-avert").textContent = nbAv; $("#nb-avert").classList.toggle("alerte", nbAv > 0);
   const total = E.etapes.reduce((a, e) => a + e.longueur_km, 0);
   $("#infos").textContent = `${E.etapes.length} étape${E.etapes.length > 1 ? "s" : ""} · ${km(total, 1)} km`;
-  statut(`À jour · ${E.pages} pages`, "ok");
-  dessinerCases(); dessinerCarte(); dessinerRapport();
+  const h = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  statut(`À jour · ${E.pages} pages · ${h}`, "ok");
+  majVisionneuse(); dessinerCases(); dessinerCarte(); dessinerRapport(); majEtatAnalyse();
+}
+
+// ------------------------------------------------------------------ visionneuse
+const V = { zoom: stock.lire("zoom") ?? "ajuster", observateur: null };
+const urlPdf = (telecharger) => `/api/pdf?session=${E.session}&rev=${E.revision}${telecharger ? "&telecharger=1&nom=" + encodeURIComponent(nomFichier(".pdf")) : ""}`;
+function largeurPage(p) {
+  const zone = $("#visionneuse");
+  const maxi = Math.max(...E.listePages.map((x) => x.largeur));
+  if (V.zoom === "ajuster") return Math.max(220, Math.min(zone.clientWidth - 40, 900) * (p.largeur / maxi));
+  if (V.zoom === "page") {
+    // page entière visible : on se cale sur la page « type » (la plus fréquente)
+    const ref = E.listePages.find((x) => x.cases.length) || E.listePages[0];
+    const w = Math.min(zone.clientWidth - 40, ((zone.clientHeight - 36) * ref.largeur) / ref.hauteur);
+    return Math.max(180, w * (p.largeur / maxi));
+  }
+  return (p.largeur * 96 / 72) * V.zoom;
+}
+const libelleZoom = () => Math.round(zoomActuel() * 100) + " %";
+function majVisionneuse() {
+  const zone = $("#pages"), cadre = $("#pdf-cadre");
+  if (!E.imagesOk) {
+    zone.hidden = true; cadre.hidden = false; cadre.src = urlPdf(false) + "#view=FitH";
+    $$("#zoom-moins, #zoom-plus, #zoom-ajuster, #zoom-page, #zoom-valeur").forEach((x) => (x.hidden = true));
+  } else {
+    zone.hidden = false; cadre.hidden = true;
+    while (zone.children.length > E.listePages.length) zone.lastChild.remove();
+    E.listePages.forEach((p, k) => {
+      let el = zone.children[k];
+      if (!el) { el = document.createElement("div"); el.className = "page"; el.innerHTML = '<img alt=""><span class="num-page"></span>'; zone.append(el); V.observateur.observe(el); }
+      el.dataset.k = k; el.title = p.titre; $("img", el).alt = p.titre; $(".num-page", el).textContent = `${p.numero} / ${E.pages}`;
+      dimensionner(el, p); el.dataset.voulu = "";
+      if (el.dataset.visible === "1") charger(el);
+    });
+  }
+  const sel = $("#choix-page"), courant = sel.value;
+  sel.innerHTML = ""; E.listePages.forEach((p) => sel.add(new Option(`${p.numero} / ${E.pages} — ${p.titre}`, p.numero)));
+  if (courant && courant <= E.pages) sel.value = courant;
+  $("#zoom-valeur").textContent = libelleZoom();
+  majBoutonsZoom();
+}
+function majBoutonsZoom() {
+  $("#zoom-ajuster").classList.toggle("actif", V.zoom === "ajuster");
+  $("#zoom-page").classList.toggle("actif", V.zoom === "page");
+}
+function dimensionner(el, p) {
+  const w = largeurPage(p);
+  el.style.width = w + "px"; el.style.height = (w * p.hauteur) / p.largeur + "px";
+}
+function charger(el) {
+  const p = E.listePages[el.dataset.k]; if (!p || !E.session) return;
+  let w = el.clientWidth * (window.devicePixelRatio || 1);
+  w = Math.min(Math.ceil(w / 200) * 200, Math.floor(14000 * p.largeur / p.hauteur));
+  const url = `/api/page?session=${E.session}&rev=${E.revision}&n=${p.numero}&largeur=${w}`;
+  if (el.dataset.voulu === url) return;
+  el.dataset.voulu = url;
+  const img = new Image();
+  img.onload = () => { if (el.dataset.voulu !== url) return; $("img", el).src = url; el.classList.add("prete"); };
+  img.onerror = () => { if (el.dataset.voulu === url) el.dataset.voulu = ""; };
+  img.src = url;
+}
+function pageCourante() {
+  const zone = $("#visionneuse"), milieu = zone.scrollTop + zone.clientHeight / 3;
+  let k = 0; for (const el of $$("#pages .page")) { if (el.offsetTop <= milieu) k = Number(el.dataset.k); }
+  return k;
+}
+function allerPage(k, eclair = false, doux = true) {
+  const el = $$("#pages .page")[k]; if (!el) return;
+  $("#visionneuse").scrollTo({ top: el.offsetTop - 16, behavior: doux ? "smooth" : "auto" });
+  if (eclair) { el.classList.remove("eclair"); void el.offsetWidth; el.classList.add("eclair"); }
+}
+function zoomer(nouveau) {
+  const zone = $("#visionneuse"), pages = $$("#pages .page");
+  if (!pages.length || zone.clientWidth === 0) { V.zoom = nouveau; return; }
+  // on garde la même page (et la même position dans la page) sous les yeux
+  const k = pageCourante(), el = pages[k], decalage = el ? (zone.scrollTop - el.offsetTop) / el.offsetHeight : 0;
+  V.zoom = nouveau; stock.ecrire("zoom", V.zoom);
+  let change = false;
+  pages.forEach((x) => { const avant = x.style.width; dimensionner(x, E.listePages[x.dataset.k]); change ||= x.style.width !== avant; });
+  if (change && el) zone.scrollTop = el.offsetTop + decalage * el.offsetHeight;
+  $("#zoom-valeur").textContent = libelleZoom(); majBoutonsZoom();
+  pages.forEach((x) => x.dataset.visible === "1" && charger(x));
+}
+const PALIERS = [0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 2.5, 3];
+function zoomActuel() { if (typeof V.zoom === "number") return V.zoom; const p = E.listePages[0]; return p && $("#visionneuse").clientWidth ? largeurPage(p) / (p.largeur * 96 / 72) : 1; }
+function brancherVisionneuse() {
+  V.observateur = new IntersectionObserver((entrees) => {
+    for (const e of entrees) { e.target.dataset.visible = e.isIntersecting ? "1" : "0"; if (e.isIntersecting) charger(e.target); }
+  }, { root: $("#visionneuse"), rootMargin: "800px 0px" });
+  let attente;
+  new ResizeObserver(() => {
+    if (typeof V.zoom === "number" || !E.listePages.length || !$("#visionneuse").clientWidth) return;
+    clearTimeout(attente); attente = setTimeout(() => zoomer(V.zoom), 120);
+  }).observe($("#visionneuse"));
+  let attenteDefil;
+  $("#visionneuse").addEventListener("scroll", () => { clearTimeout(attenteDefil); attenteDefil = setTimeout(() => { const p = E.listePages[pageCourante()]; if (p) $("#choix-page").value = p.numero; }, 80); });
+  $("#choix-page").onchange = (e) => allerPage(E.listePages.findIndex((p) => p.numero == e.target.value));
+  $("#page-prec").onclick = () => allerPage(Math.max(0, pageCourante() - 1));
+  $("#page-suiv").onclick = () => allerPage(Math.min(E.listePages.length - 1, pageCourante() + 1));
+  $("#zoom-plus").onclick = () => zoomer(PALIERS.find((z) => z > zoomActuel() + 0.01) ?? 3);
+  $("#zoom-moins").onclick = () => zoomer([...PALIERS].reverse().find((z) => z < zoomActuel() - 0.01) ?? 0.5);
+  $("#zoom-ajuster").onclick = () => zoomer("ajuster");
+  $("#zoom-page").onclick = () => zoomer("page");
+  $("#btn-onglet").onclick = () => E.session && window.open(urlPdf(false), "_blank");
+}
+function voirDansPdf(id) {
+  const k = E.listePages.findIndex((p) => p.cases.includes(id));
+  if (k < 0) return toast("Case introuvable dans le PDF");
+  montrerVue("apercu"); requestAnimationFrame(() => allerPage(k, true, false));
 }
 
 // ------------------------------------------------------------------ schéma (tulipe) en SVG
@@ -760,21 +1084,18 @@ function tulipe(c) {
     const pt = (da) => `${x2 - t * Math.cos(ang + da)},${y2 - t * Math.sin(ang + da)}`;
     return `<line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}"/><polygon points="${x2},${y2} ${pt(0.42)} ${pt(-0.42)}" fill="currentColor" stroke="none"/>`;
   };
-  let s = "";
-  const fines = (debut) => (c.branches || []).filter((a) => Math.abs(((a + 180) % 360 + 360) % 360 - 180) < 168).map((a) => { const [x1, y1] = p(a, debut), [x2, y2] = p(a, 34); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="2.2"/>`; }).join("");
+  const norme = (a) => (((a + 180) % 360) + 360) % 360 - 180;
+  const fines = (debut) => (c.branches || []).filter((a) => Math.abs(norme(a)) < 168).map((a) => { const [x1, y1] = p(a, debut), [x2, y2] = p(a, 34); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="2.2"/>`; }).join("");
   const entree = (jusqua = 0) => `<line x1="0" y1="36" x2="0" y2="${jusqua}"/><circle cx="0" cy="36" r="4" fill="currentColor" stroke="none"/>`;
+  let s;
   if (c.type === "rond_point") {
-    const r = 12, pos = c.position_sortie ?? c.angle ?? 0;
-    const droite = E.config.calcul.sens_circulation === "droite";
+    const r = 12, pos = c.position_sortie ?? c.angle ?? 0, droite = E.config.calcul.sens_circulation === "droite";
     let etendue = droite ? 180 - pos : -(180 + pos);
     if (droite) { if (etendue < 20) etendue += 360; etendue = Math.min(etendue, 345); }
     else { if (etendue > -20) etendue -= 360; etendue = Math.max(etendue, -345); }
-    // angles d'écran (y vers le bas) : le bas de l'anneau est à 90°, sens antihoraire = angle décroissant
-    const fin = ((90 - etendue) * Math.PI) / 180;
-    const xs = Math.cos(fin) * r, ys = Math.sin(fin) * r;
+    const fin = ((90 - etendue) * Math.PI) / 180, xs = Math.cos(fin) * r, ys = Math.sin(fin) * r;
     const [ex, ey] = p(pos, 36);
-    s = `<circle r="${r}" stroke-width="2" fill="none"/>${fines(r)}${entree(r)}
-      <path d="M0 ${r} A ${r} ${r} 0 ${Math.abs(etendue) > 180 ? 1 : 0} ${droite ? 0 : 1} ${xs} ${ys}" fill="none"/>${fleche(xs, ys, ex, ey)}`;
+    s = `<circle r="${r}" stroke-width="2" fill="none"/>${fines(r)}${entree(r)}<path d="M0 ${r} A ${r} ${r} 0 ${Math.abs(etendue) > 180 ? 1 : 0} ${droite ? 0 : 1} ${xs} ${ys}" fill="none"/>${fleche(xs, ys, ex, ey)}`;
   } else if (c.type === "demi_tour") {
     const sg = (c.angle ?? 180) >= 0 ? 1 : -1, r = 11;
     s = `<circle cx="${-sg * r}" cy="36" r="4" fill="currentColor" stroke="none"/><path d="M${-sg * r} 36 V -10 A ${r} ${r} 0 0 ${sg > 0 ? 1 : 0} ${sg * r} -10" fill="none"/>${fleche(sg * r, -10, sg * r, 18)}`;
@@ -782,7 +1103,7 @@ function tulipe(c) {
     s = `<line x1="-20" y1="36" x2="20" y2="36" stroke-width="6"/>${fleche(0, 36, 0, -36)}`;
   } else if (c.type === "arrivee") {
     let d = ""; for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) d += `<rect x="${-16 + i * 8}" y="${-24 + j * 8}" width="8" height="8" fill="${(i + j) % 2 ? "var(--panneau)" : "currentColor"}" stroke="currentColor" stroke-width="1"/>`;
-    s = `${entree(0)}<line x1="0" y1="36" x2="0" y2="0"/>${d}`;
+    s = `${entree(0)}${d}`;
   } else {
     let a = c.type === "virage" ? c.angle || 0 : 0;
     if (Math.abs(a) > 150) a = Math.sign(a) * 150;
@@ -790,10 +1111,7 @@ function tulipe(c) {
     s = `${fines(0)}${entree(0)}${fleche(0, 0, x, y)}`;
   }
   let marques = "";
-  if (c.controle) {
-    const w = 12 + c.controle.length * 7;
-    marques += `<rect x="-47" y="-47" width="${w}" height="15" rx="7.5" fill="var(--panneau)" stroke="var(--bleu)" stroke-width="1.5"/><text x="${-47 + w / 2}" y="-36" text-anchor="middle" font-size="10" font-weight="800" fill="var(--bleu)" stroke="none">${echapper(c.controle)}</text>`;
-  }
+  if (c.controle) { const w = 12 + c.controle.length * 7; marques += `<rect x="-47" y="-47" width="${w}" height="15" rx="7.5" fill="var(--panneau)" stroke="var(--bleu)" stroke-width="1.5"/><text x="${-47 + w / 2}" y="-36" text-anchor="middle" font-size="10" font-weight="800" fill="var(--bleu)" stroke="none">${echapper(c.controle)}</text>`; }
   if (c.danger) marques += `<text x="${c.controle ? 46 : -46}" y="-32" text-anchor="${c.controle ? "end" : "start"}" font-size="17" font-weight="900" fill="var(--rouge)" stroke="none">${"!".repeat(c.danger)}</text>`;
   return `<svg class="tulipe" viewBox="-50 -50 100 100" aria-hidden="true"><g stroke="currentColor" stroke-width="4.2" stroke-linecap="round" color="var(--texte)">${s}${marques}</g></svg>`;
 }
@@ -801,23 +1119,24 @@ function tulipe(c) {
 // ------------------------------------------------------------------ table des cases
 function modifCase(c) { return E.modifs.cases[c.id] || (E.modifs.cases[c.id] = {}); }
 function ajoutDe(c) { return E.modifs.ajouts.find((a) => a.id === c.id); }
-function enregistrerModifs() { planifierRendu(700); }
+function modifsChangees() { persister(); memoriser(); planifierRendu(500); }
 function majCase(c, champ, valeur) {
   const a = c.manuel && ajoutDe(c);
   if (a) a[champ] = valeur; else modifCase(c)[champ] = valeur;
-  enregistrerModifs();
+  modifsChangees();
 }
 function dessinerCases() {
-  const corps = $("#table-cases tbody"); corps.innerHTML = "";
+  const corps = $("#table-cases tbody"), defil = $(".liste-cases").scrollTop;
+  corps.innerHTML = "";
   const filtre = $("#filtre").value.trim().toLowerCase(), verif = $("#filtre-verifier").checked;
-  const aff = E.config.affichage;
+  const aff = E.config.affichage, fragment = document.createDocumentFragment();
   let etape = null;
   for (const c of E.cases) {
     if (verif && !c.remarques.length) continue;
-    if (filtre && !(c.description + " " + c.notes.join(" ") + " " + c.numero).toLowerCase().includes(filtre)) continue;
+    if (filtre && !(c.description + " " + c.notes.join(" ") + " " + c.numero + " " + c.controle).toLowerCase().includes(filtre)) continue;
     if (c.etape !== etape) {
       etape = c.etape;
-      corps.insertAdjacentHTML("beforeend", `<tr class="etape-titre"><td colspan="6">${echapper(etape)}</td></tr>`);
+      const t = document.createElement("tr"); t.className = "etape-titre"; t.innerHTML = `<td colspan="6">${echapper(etape)}</td>`; fragment.append(t);
     }
     const tr = document.createElement("tr"); tr.dataset.id = c.id;
     if (c.controle) tr.classList.add("controle"); else if (c.danger) tr.classList.add("danger");
@@ -827,42 +1146,44 @@ function dessinerCases() {
       <td><div class="num">${c.numero}</div></td>
       <td><div class="km">${km(c.km_total, aff.decimales_total)}</div><div class="partiel">${c.type === "depart" ? "" : "+ " + km(c.km_partiel, aff.decimales_partiel)}</div>${c.cap != null && c.type !== "arrivee" ? `<div class="partiel">C.${String(Math.round(c.cap) % 360).padStart(3, "0")}</div>` : ""}</td>
       <td>${tulipe(c)}</td>
-      <td><input class="desc" value="${echapper(c.description)}" aria-label="Description">
-          <textarea rows="${Math.max(1, c.notes.length)}" aria-label="Notes" placeholder="Notes (une par ligne)">${echapper(c.notes.join("\n"))}</textarea>
+      <td><input class="desc" value="${echapper(c.description)}" aria-label="Description de la case ${c.numero}">
+          <textarea rows="${Math.max(1, c.notes.length)}" aria-label="Notes de la case ${c.numero}" placeholder="Notes (une par ligne)">${echapper(c.notes.join("\n"))}</textarea>
           ${c.manuel ? '<span class="modifiee">ajoutée</span>' : modifiee ? '<span class="modifiee">corrigée</span>' : ""}
-          ${c.remarques.map((r) => `<div class="remarque">${svg('<path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/>', 14)}${echapper(r)}</div>`).join("")}</td>
+          ${c.remarques.map((r) => `<div class="remarque">${svg('<path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/>', 13)}<span>${echapper(r)}</span></div>`).join("")}</td>
       <td><div class="marques">
           <select aria-label="Danger"><option value="0">Sans danger</option><option value="1">! modéré</option><option value="2">!! important</option><option value="3">!!! très dangereux</option></select>
           <input placeholder="Contrôle (ex. CS4)" value="${echapper(c.controle)}" aria-label="Code de contrôle"></div></td>
-      <td><div class="actions-case"><button class="icone-btn" title="Supprimer la case" aria-label="Supprimer">${svg('<path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/>')}</button>
-          ${modifiee ? `<button class="icone-btn annuler" title="Annuler les corrections" aria-label="Annuler">${svg('<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>')}</button>` : ""}</div></td>`;
-    const [desc] = $$("input.desc", tr), notes = $("textarea", tr), danger = $(".marques select", tr), ctrl = $(".marques input", tr);
+      <td><div class="actions-case">
+          <button class="icone-btn voir" title="Voir dans le PDF" aria-label="Voir dans le PDF">${svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', 15)}</button>
+          <button class="icone-btn supprimer" title="Supprimer la case" aria-label="Supprimer">${svg('<path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', 15)}</button>
+          ${modifiee ? `<button class="icone-btn annuler" title="Annuler les corrections" aria-label="Annuler les corrections">${svg('<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>', 15)}</button>` : ""}</div></td>`;
+    const desc = $("input.desc", tr), notes = $("textarea", tr), danger = $(".marques select", tr), ctrl = $(".marques input", tr);
     danger.value = String(c.danger || 0);
     desc.onchange = () => majCase(c, "description", desc.value);
+    desc.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); desc.blur(); } };
     notes.onchange = () => majCase(c, "notes", notes.value.split("\n").map((x) => x.trim()).filter(Boolean));
     danger.onchange = () => majCase(c, "danger", Number(danger.value));
     ctrl.onchange = () => majCase(c, "controle", ctrl.value.trim());
-    const [suppr, annuler] = $$(".icone-btn", tr);
-    suppr.onclick = () => {
-      if (c.manuel) E.modifs.ajouts = E.modifs.ajouts.filter((a) => a.id !== c.id);
-      else modifCase(c).supprime = true;
-      enregistrerModifs(); toast(`Case ${c.numero} supprimée`);
+    $(".voir", tr).onclick = () => voirDansPdf(c.id);
+    $(".supprimer", tr).onclick = () => {
+      if (c.manuel) E.modifs.ajouts = E.modifs.ajouts.filter((a) => a.id !== c.id); else modifCase(c).supprime = true;
+      modifsChangees(); toast(`Case ${c.numero} supprimée`, { action: { libelle: "Annuler", faire: () => deplacerHistorique(-1) } });
     };
-    if (annuler) annuler.onclick = () => { delete E.modifs.cases[c.id]; enregistrerModifs(); };
+    const annuler = $(".annuler", tr);
+    if (annuler) annuler.onclick = () => { delete E.modifs.cases[c.id]; modifsChangees(); };
     tr.addEventListener("focusin", () => selectionner(c.id, false));
-    tr.addEventListener("click", (e) => { if (e.target === tr || e.target.closest("td:first-child,td:nth-child(2),td:nth-child(3)")) selectionner(c.id, false); });
-    corps.append(tr);
+    tr.addEventListener("click", (e) => { if (!enSaisie(e.target) && !e.target.closest("button")) selectionner(c.id, false); });
+    fragment.append(tr);
   }
-  if (!corps.children.length) corps.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--texte-3);padding:30px">${E.cases.length ? "Aucune case ne correspond au filtre." : "Générez le road book pour voir les cases."}</td></tr>`;
-  // cases supprimées
-  const supp = Object.entries(E.modifs.cases).filter(([, m]) => m.supprime);
-  const zone = $("#supprimees");
-  zone.innerHTML = supp.length ? `<h3 style="margin:0">Cases supprimées</h3>` : "";
+  corps.append(fragment);
+  if (!corps.children.length) corps.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--texte-3);padding:34px">${E.cases.length ? "Aucune case ne correspond au filtre." : "Générez le road book pour voir les cases."}</td></tr>`;
+  $(".liste-cases").scrollTop = defil;
+  const supp = Object.entries(E.modifs.cases).filter(([, m]) => m.supprime), zone = $("#supprimees");
+  zone.innerHTML = supp.length ? `<h3 class="sous-titre" style="margin:0">Cases supprimées</h3>` : "";
   for (const [id] of supp) {
-    const [etape, type, s] = id.split("|");
-    const l = document.createElement("div");
-    l.innerHTML = `<span>${echapper(etape)} · ${type} · km ${km(Number(s) / 1000, 2)}</span><button class="petit-btn">Restaurer</button>`;
-    $("button", l).onclick = () => { delete E.modifs.cases[id].supprime; if (!Object.keys(E.modifs.cases[id]).length) delete E.modifs.cases[id]; enregistrerModifs(); };
+    const [et, type, s] = id.split("|"), l = document.createElement("div");
+    l.innerHTML = `<span>${echapper(et)} · ${echapper(type.replace("_", "-"))} · km ${km(Number(s) / 1000, 2)}</span><button class="petit-btn">Restaurer</button>`;
+    $("button", l).onclick = () => { delete E.modifs.cases[id].supprime; if (!Object.keys(E.modifs.cases[id]).length) delete E.modifs.cases[id]; modifsChangees(); };
     zone.append(l);
   }
 }
@@ -877,28 +1198,24 @@ function selectionner(id, defiler = true) {
 
 // ------------------------------------------------------------------ carte
 function remplirEtapes() {
-  for (const sel of [$("#choix-etape"), $("#ajout-etape")]) {
-    sel.innerHTML = ""; E.etapes.forEach((e) => sel.add(new Option(`${e.nom} (${km(e.longueur_km, 1)} km)`, e.nom)));
-  }
+  for (const sel of [$("#choix-etape"), $("#ajout-etape")]) { sel.innerHTML = ""; E.etapes.forEach((e) => sel.add(new Option(`${e.nom} (${km(e.longueur_km, 1)} km)`, e.nom))); }
   if (!E.etapes.some((e) => e.nom === E.etapeCarte)) E.etapeCarte = E.etapes[0]?.nom;
-  $("#choix-etape").value = E.etapeCarte || "";
-  dessinerCarte();
+  $("#choix-etape").value = E.etapeCarte || ""; dessinerCarte();
 }
 function dessinerCarte() {
   const carte = $("#carte"), e = E.etapes.find((x) => x.nom === E.etapeCarte);
   if (!e) { carte.innerHTML = ""; return; }
   const xs = e.points.map((p) => p[0]), ys = e.points.map((p) => p[1]);
   const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
-  const taille = Math.max(maxx - minx, maxy - miny, 1) * 1.12;
-  const cx = (minx + maxx) / 2, cy = (miny + maxy) / 2;
+  const taille = Math.max(maxx - minx, maxy - miny, 1) * 1.14, cx = (minx + maxx) / 2, cy = (miny + maxy) / 2;
   const X = (x) => ((x - cx) / taille) * 100 + 50, Y = (y) => 50 - ((y - cy) / taille) * 100;
-  const pts = e.points.map((p) => `${X(p[0]).toFixed(2)},${Y(p[1]).toFixed(2)}`).join(" ");
-  let s = `<polyline class="trace" points="${pts}"/>`;
+  let s = `<polyline class="trace" points="${e.points.map((p) => `${X(p[0]).toFixed(2)},${Y(p[1]).toFixed(2)}`).join(" ")}"/>`;
   const cases = E.cases.filter((c) => c.etape === e.nom);
   for (const c of cases) {
-    const cls = ["point", c.controle ? "controle" : c.danger ? "danger" : "", E.selection === c.id ? "actif" : ""].join(" ");
-    s += `<g data-id="${echapper(c.id)}"><title>Case ${c.numero} · ${echapper(c.description)}</title><circle class="${cls}" cx="${X(c.x)}" cy="${Y(c.y)}" r="${E.selection === c.id ? 3.4 : 2.4}"/>`;
-    if (cases.length <= 60 || E.selection === c.id) s += `<text x="${X(c.x) + 3.2}" y="${Y(c.y) - 2.6}" style="font-size:3.6px">${c.numero}</text>`;
+    const actif = E.selection === c.id;
+    const cls = ["point", c.controle ? "controle" : c.danger ? "danger" : "", actif ? "actif" : ""].join(" ");
+    s += `<g data-id="${echapper(c.id)}"><title>Case ${c.numero} · ${echapper(c.description)}</title><circle class="${cls}" cx="${X(c.x)}" cy="${Y(c.y)}" r="${actif ? 3.2 : 2.2}"/>`;
+    if (cases.length <= 60 || actif) s += `<text x="${X(c.x) + 3}" y="${Y(c.y) - 2.4}" style="font-size:3.4px">${c.numero}</text>`;
     s += "</g>";
   }
   carte.innerHTML = s;
@@ -908,103 +1225,155 @@ function dessinerCarte() {
 // ------------------------------------------------------------------ rapport
 function dessinerRapport() {
   const ctrl = E.cases.filter((c) => c.controle).length, dangers = E.cases.filter((c) => c.danger).length;
-  const verif = E.cases.filter((c) => c.remarques.length);
-  const total = E.etapes.reduce((a, e) => a + e.longueur_km, 0);
-  const v = E.config.epreuve.vitesse_moyenne_kmh;
-  const duree = v ? total / v : 0;
+  const verif = E.cases.filter((c) => c.remarques.length), total = E.etapes.reduce((a, e) => a + e.longueur_km, 0);
+  const v = E.config.epreuve.vitesse_moyenne_kmh, minutes = v ? Math.round((total / v) * 60) : 0;
   $("#stats").innerHTML = [
     ["Distance", `${km(total, 1)} km`, `${E.etapes.length} étape(s)`],
     ["Cases", E.cases.length, `${E.pages} pages ${E.config.affichage.format.toUpperCase()}`],
-    ["Durée estimée", v ? `${Math.floor(duree)} h ${String(Math.round((duree % 1) * 60)).padStart(2, "0")}` : "–", v ? `à ${v} km/h` : ""],
+    ["Durée estimée", v ? `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")}` : "–", v ? `à ${v} km/h` : ""],
     ["Contrôles / dangers", `${ctrl} / ${dangers}`, "cases mises en évidence"],
     ["À vérifier", verif.length, "cases signalées"],
   ].map(([a, b, c]) => `<div class="stat"><small>${a}</small><b>${b}</b><br><span>${c}</span></div>`).join("");
-  const lignes = E.avertissements.map((a) => echapper(a)).concat(verif.map((c) => `Case ${c.numero} (${echapper(c.etape)}) : ${echapper(c.remarques.join(" ; "))}`));
-  $("#avertissements").innerHTML = lignes.length ? lignes.map((l) => `<div>${svg('<path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/>')}<span>${l}</span></div>`).join("") : `<div style="color:var(--vert)">Aucun avertissement.</div>`;
+  const zone = $("#avertissements"); zone.innerHTML = "";
+  const ligne = (texte, id) => {
+    const d = document.createElement("div");
+    d.innerHTML = `${svg('<path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/>')}<span>${echapper(texte)}</span>`;
+    if (id) { const b = document.createElement("button"); b.className = "petit-btn"; b.textContent = "Voir la case"; b.onclick = () => { montrerVue("cases"); selectionner(id); }; d.append(b); }
+    zone.append(d);
+  };
+  E.avertissements.forEach((a) => ligne(a));
+  verif.forEach((c) => ligne(`Case ${c.numero} (${c.etape}) : ${c.remarques.join(" ; ")}`, c.id));
+  if (!zone.children.length) zone.innerHTML = `<div style="color:var(--vert)">${svg('<path d="M5 12l5 5L20 7"/>')}<span>Aucun avertissement.</span></div>`;
   $("#rapport").textContent = E.rapport || "";
+}
+
+// ------------------------------------------------------------------ projet
+async function ouvrirProjet(f) {
+  try {
+    const texte = await f.text();
+    if (/\.json$/i.test(f.name)) {
+      const p = JSON.parse(texte);
+      if (!p.config) throw new Error("ce n'est pas un projet roadbook");
+      E.config = fusion(E.defauts, p.config);
+      E.modifs = { cases: {}, ajouts: [], ...(p.modifications || {}) };
+    } else {
+      const d = await api("/api/lire-config", { texte });
+      E.config = d.config; if (d.avertissements.length) toast(d.avertissements.join(" · "), { erreur: true });
+    }
+    persister(); construireOptions(); majTitre(); memoriser(true);
+    toast(`« ${f.name} » chargé`);
+    if (E.fichiers.gpx) analyser();
+  } catch (e) { toast("Fichier illisible : " + e.message, { erreur: true }); }
+}
+function enregistrerProjet() {
+  telecharger(nomFichier(".roadbook.json"), JSON.stringify({ format: "roadbook-projet", version: 1, config: E.config, modifications: E.modifs }, null, 2), "application/json");
+}
+async function chargerExemple() {
+  try {
+    const d = await api("/api/exemple");
+    E.config = fusion(E.defauts, d.config); E.modifs = { cases: {}, ajouts: [] };
+    E.fichiers = { gpx: d.gpx, pois: d.pois, osm: [] };
+    persister(); construireOptions(); majTitre(); majDepots(); memoriser(true); base.ecrire("dernier", E.fichiers);
+    await analyser();
+  } catch (e) { toast(e.message, { erreur: true }); }
 }
 
 // ------------------------------------------------------------------ navigation et actions
 function montrerVue(id) {
-  $$(".onglets button").forEach((b) => b.classList.toggle("actif", b.dataset.vue === id));
+  $$(".onglets button").forEach((b) => { const a = b.dataset.vue === id; b.classList.toggle("actif", a); b.setAttribute("aria-selected", a); });
   $$(".vue").forEach((v) => v.classList.toggle("active", v.id === "vue-" + id));
   if (id === "cases") dessinerCarte();
+  if (id === "apercu" && typeof V.zoom !== "number" && E.listePages.length) zoomer(V.zoom);
 }
+function telechargerPdf() { if (E.session) telecharger(nomFichier(".pdf"), urlPdf(true)); }
 function brancherActions() {
   $$(".onglets button").forEach((b) => (b.onclick = () => montrerVue(b.dataset.vue)));
-  $$("[data-menu]").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const m = b.closest(".menu"); const o = m.classList.contains("ouvert"); $$(".menu").forEach((x) => x.classList.remove("ouvert")); if (!o) m.classList.add("ouvert"); }));
+  $$("[data-menu]").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const m = b.closest(".menu"), o = m.classList.contains("ouvert"); $$(".menu").forEach((x) => x.classList.remove("ouvert")); if (!o) m.classList.add("ouvert"); }));
   document.addEventListener("click", () => $$(".menu").forEach((x) => x.classList.remove("ouvert")));
   $("#btn-analyser").onclick = analyser;
   $("#filtre").oninput = dessinerCases; $("#filtre-verifier").onchange = dessinerCases;
+  $("#recherche-option").oninput = filtrerOptions;
   $("#choix-etape").onchange = (e) => { E.etapeCarte = e.target.value; dessinerCarte(); };
-  $("#btn-pdf").onclick = () => E.pdfOctets && telecharger(nomFichier(".pdf"), new Blob([E.pdfOctets], { type: "application/pdf" }));
+  $("#btn-pdf").onclick = telechargerPdf;
   $("#btn-csv").onclick = async () => {
     try { const d = await api("/api/rendu", { session: E.session, config: E.config, modifications: E.modifs, pdf: false, csv: true }); telecharger(nomFichier(".csv"), "﻿" + d.csv, "text/csv;charset=utf-8"); }
-    catch (e) { toast(e.message, true); }
+    catch (e) { toast(e.message, { erreur: true }); }
   };
-  $("#btn-onglet").onclick = () => E.pdfUrl && window.open(E.pdfUrl, "_blank");
   $("#btn-rapport-txt").onclick = () => telecharger(nomFichier(".rapport.txt"), E.rapport, "text/plain;charset=utf-8");
   $("#btn-yaml").onclick = async () => {
     try { const d = await api("/api/config-yaml", { config: E.config }); telecharger("config.yaml", d.yaml, "text/yaml;charset=utf-8"); }
-    catch (e) { toast(e.message, true); }
+    catch (e) { toast(e.message, { erreur: true }); }
   };
-  $("#btn-enregistrer").onclick = () => telecharger(nomFichier(".roadbook.json"), JSON.stringify({ format: "roadbook-projet", version: 1, config: E.config, modifications: E.modifs }, null, 2), "application/json");
+  $("#btn-enregistrer").onclick = enregistrerProjet;
   $("#btn-ouvrir").onclick = () => $("#fichier-projet").click();
-  $("#fichier-projet").onchange = async (ev) => {
-    const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
-    try {
-      const texte = await f.text();
-      if (/\.json$/i.test(f.name)) {
-        const p = JSON.parse(texte);
-        E.config = fusion(E.defauts, p.config || {});
-        E.modifs = p.modifications || { cases: {}, ajouts: [] };
-        E.modifs.cases ??= {}; E.modifs.ajouts ??= [];
-      } else {
-        const d = await api("/api/lire-config", { texte });
-        E.config = d.config; if (d.avertissements.length) toast(d.avertissements.join(" · "), true);
-      }
-      stock.ecrire("config", E.config); construireOptions(); majTitre();
-      toast(`« ${f.name} » chargé`);
-      if (E.fichiers.gpx) analyser();
-    } catch (e) { toast("Fichier illisible : " + e.message, true); }
+  $("#fichier-projet").onchange = (ev) => { const f = ev.target.files[0]; ev.target.value = ""; if (f) ouvrirProjet(f); };
+  $("#btn-nouveau").onclick = () => {
+    if (!confirm("Commencer un nouveau road book ? Les fichiers et les corrections de cases seront retirés (les options sont gardées).")) return;
+    E.fichiers = { gpx: null, pois: [], osm: [] }; E.modifs = { cases: {}, ajouts: [] }; E.session = null; E.cases = []; E.etapes = []; E.listePages = [];
+    persister(); base.ecrire("dernier", E.fichiers); majDepots(); memoriser(true);
+    $("#vide").hidden = false; $("#barre-apercu").hidden = true; $("#pages").innerHTML = ""; $("#btn-export").disabled = true;
+    ["#nb-pages", "#nb-cases", "#nb-avert"].forEach((s) => ($(s).textContent = "–")); $("#infos").textContent = "";
+    dessinerCases(); dessinerCarte(); statut("Prêt — déposez une trace GPX"); montrerVue("apercu");
   };
   $("#btn-defauts").onclick = () => {
     if (!confirm("Rétablir toutes les options par défaut ? Les corrections de cases sont conservées.")) return;
-    E.config = copie(E.defauts); stock.ecrire("config", E.config); construireOptions(); majTitre();
-    if (E.session) analyser();
+    E.config = copie(E.defauts); persister(); construireOptions(); majTitre(); memoriser(true); majEtatAnalyse();
+    if (E.session && !analysePerimee()) planifierRendu(0);
   };
   $("#btn-ajout").onclick = () => {
-    const etape = $("#ajout-etape").value, k = Number($("#ajout-km").value);
-    const e = E.etapes.find((x) => x.nom === etape);
-    if (!e || !Number.isFinite(k) || k < 0 || k > e.longueur_km) return toast(`Km invalide (0 à ${km(e?.longueur_km ?? 0, 2)})`, true);
+    const etape = $("#ajout-etape").value, k = Number($("#ajout-km").value), e = E.etapes.find((x) => x.nom === etape);
+    if (!e || $("#ajout-km").value === "" || !Number.isFinite(k) || k < 0 || k > e.longueur_km) return toast(`Kilomètre invalide (0 à ${km(e?.longueur_km ?? 0, 2)})`, { erreur: true });
     const desc = $("#ajout-desc").value.trim() || "TD", note = $("#ajout-notes").value.trim();
-    const id = `${etape}|poi|${Math.round(k * 1000)}`;
-    E.modifs.ajouts.push({ id, etape, km: k, description: desc, notes: note ? [note] : [] });
+    E.modifs.ajouts.push({ id: `${etape}|poi|${Math.round(k * 1000)}`, etape, km: k, description: desc, notes: note ? [note] : [] });
     $("#ajout-km").value = ""; $("#ajout-desc").value = ""; $("#ajout-notes").value = "";
-    enregistrerModifs(); toast("Case ajoutée");
+    modifsChangees(); toast("Case ajoutée", { action: { libelle: "Annuler", faire: () => deplacerHistorique(-1) } });
   };
+  $("#btn-annuler").onclick = () => deplacerHistorique(-1);
+  $("#btn-retablir").onclick = () => deplacerHistorique(1);
   $("#btn-theme").onclick = () => {
-    const sombre = matchMedia("(prefers-color-scheme: dark)").matches;
-    const actuel = document.documentElement.dataset.theme || (sombre ? "dark" : "light");
-    const nouveau = actuel === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = nouveau; stock.ecrire("theme", nouveau);
+    const actuel = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const nouveau = actuel === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = nouveau; stock.ecrire("theme", nouveau);
   };
+  $("#vide-choisir").onclick = () => $("#fichier-gpx").click();
+  $("#vide-exemple").onclick = chargerExemple;
+  // raccourcis clavier
+  document.addEventListener("keydown", (e) => {
+    const mod = e.ctrlKey || e.metaKey; if (!mod) return;
+    const k = e.key.toLowerCase();
+    if (k === "s") { e.preventDefault(); enregistrerProjet(); }
+    else if (k === "d") { e.preventDefault(); telechargerPdf(); }
+    else if (k === "enter") { e.preventDefault(); analyser(); }
+    else if (!enSaisie(document.activeElement) && (k === "z" || k === "y")) {
+      e.preventDefault(); deplacerHistorique(k === "y" || e.shiftKey ? 1 : -1);
+    }
+  });
+  // dépôt n'importe où dans la fenêtre
+  let profondeur = 0;
+  const avecFichiers = (e) => [...(e.dataTransfer?.types || [])].includes("Files");
+  window.addEventListener("dragenter", (e) => { if (!avecFichiers(e)) return; profondeur++; $("#depot-global").classList.add("visible"); });
+  window.addEventListener("dragleave", () => { profondeur = Math.max(0, profondeur - 1); if (!profondeur) $("#depot-global").classList.remove("visible"); });
+  window.addEventListener("dragover", (e) => { if (avecFichiers(e)) e.preventDefault(); });
+  window.addEventListener("drop", (e) => { if (!avecFichiers(e)) return; e.preventDefault(); profondeur = 0; $("#depot-global").classList.remove("visible"); prendreFichiers(e.dataTransfer.files); });
 }
 
 // ------------------------------------------------------------------ démarrage
 (async function () {
   const theme = stock.lire("theme"); if (theme) document.documentElement.dataset.theme = theme;
-  brancherActions();
-  brancherDepot("gpx", "gpx", false, false);
-  brancherDepot("poi", "pois", true, false);
-  brancherDepot("osm", "osm", true, true);
+  brancherActions(); brancherVisionneuse();
+  brancherDepot("gpx", "gpx"); brancherDepot("poi", "pois"); brancherDepot("osm", "osm");
   try {
     const d = await api("/api/options");
-    E.sections = d.sections; E.defauts = d.defauts; $("#version").textContent = "v" + d.version;
+    E.sections = d.sections; E.defauts = d.defauts; E.imagesOk = d.apercu_images; $("#version").textContent = "v" + d.version;
     E.config = fusion(d.defauts, stock.lire("config") || {});
-    construireOptions(); majTitre(); majDepots();
-    statut("Prêt — déposez une trace GPX");
-  } catch (e) { statut("Serveur injoignable", "erreur"); toast("Le serveur roadbook ne répond pas : relancez « roadbook interface ».", true); }
+    E.modifs = { cases: {}, ajouts: [], ...(stock.lire("modifs") || {}) };
+    construireModeles(); construireOptions(); majTitre(); memoriser(true);
+    const dernier = await base.lire("dernier");
+    if (dernier?.gpx) {
+      E.fichiers = { gpx: dernier.gpx, pois: dernier.pois || [], osm: dernier.osm || [] };
+      majDepots(); toast(`Travail précédent restauré (${dernier.gpx.nom})`);
+      analyser();
+    } else { majDepots(); statut("Prêt — déposez une trace GPX"); }
+  } catch (e) { statut("Serveur injoignable", "erreur"); toast("Le serveur roadbook ne répond pas : relancez « roadbook interface ».", { erreur: true }); }
 })();
 </script>
 </body>

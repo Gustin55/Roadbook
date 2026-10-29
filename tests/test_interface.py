@@ -1,6 +1,5 @@
 """Serveur de l'interface graphique et corrections manuelles des cases."""
 
-import base64
 import json
 import threading
 import urllib.request
@@ -28,7 +27,8 @@ def appel(url, chemin, corps=None):
     try:
         with urllib.request.urlopen(req, timeout=60) as r:
             brut = r.read()
-            return r.status, (json.loads(brut) if chemin.startswith("/api") else brut)
+            est_json = r.headers.get("Content-Type", "").startswith("application/json")
+            return r.status, (json.loads(brut) if est_json else brut)
     except urllib.error.HTTPError as e:
         return e.code, json.loads(e.read())
 
@@ -53,7 +53,14 @@ def test_analyse_rendu_et_corrections(url):
     code, d = appel(url, "/api/analyser", {**fichiers(), "config": {}})
     assert code == 200, d
     assert len(d["etapes"]) == 2 and d["pages"] == 7
-    assert base64.b64decode(d["pdf"]).startswith(b"%PDF")
+    assert [p["titre"] for p in d["liste_pages"]][:3] == [
+        "Légende", "E1 - Erfoud boucle nord · page de garde", "E1 - Erfoud boucle nord · 1/2 · cases 1–7"]
+    # PDF et images des pages servis à part (pas de PDF en base64 dans le JSON)
+    assert "pdf" not in d
+    code, pdf = appel(url, f"/pdf?session={d['session']}&rev={d['revision']}".replace("/pdf", "/api/pdf"))
+    assert code == 200 and pdf[:4] == b"%PDF"
+    code, png = appel(url, f"/api/page?session={d['session']}&rev={d['revision']}&n=3&largeur=600")
+    assert code == 200 and png[:8] == b"\x89PNG\r\n\x1a\n"
     cases = d["cases"]
     virage = next(c for c in cases if c["type"] == "virage")
     poi = next(c for c in cases if c["type"] == "poi")
@@ -64,7 +71,7 @@ def test_analyse_rendu_et_corrections(url):
     code, r = appel(url, "/api/rendu", {"session": d["session"], "config": {"affichage": {"format": "a4"}},
                                        "modifications": modifs})
     assert code == 200, r
-    assert r["pages"] == 6 and not r["analyse_perimee"]
+    assert r["pages"] == 6 and not r["analyse_perimee"] and r["revision"] == d["revision"] + 1
     par_id = {c["id"]: c for c in r["cases"]}
     assert par_id[virage["id"]]["description"] == "AD SUR PP" and par_id[virage["id"]]["danger"] == 3
     assert poi["id"] not in par_id
@@ -78,6 +85,11 @@ def test_analyse_rendu_et_corrections(url):
     code, r = appel(url, "/api/rendu", {"session": d["session"], "config": {"calcul": {"seuil_virage_deg": 35}},
                                        "pdf": False, "csv": True})
     assert r["analyse_perimee"] and "pdf" not in r and r["csv"].startswith("numero;")
+
+
+def test_exemple_integre(url):
+    code, d = appel(url, "/api/exemple")
+    assert code == 200 and d["gpx"]["texte"].startswith("<?xml") and d["config"]["epreuve"]["nom"]
 
 
 def test_config_yaml_aller_retour(url):

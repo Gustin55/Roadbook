@@ -36,18 +36,26 @@ navigateur (Python 3.11+ requis).
 L'interface tourne en local (rien n'est envoyé sur Internet, sauf les
 requêtes OpenStreetMap si vous les activez) :
 
-* glisser-déposer de la trace GPX, du CSV de balises et d'un export OSM ;
-* **toutes les options** de mise en page, de textes, de numérotation, de
-  détection des virages et d'OpenStreetMap, avec une aide sur chacune ;
-* **aperçu PDF en direct** : chaque option de mise en page s'applique
-  immédiatement ; les options marquées « analyse » demandent de regénérer ;
-* onglet **Cases** : correction de la description et des notes, ajout d'un
-  danger (! à !!!) ou d'un code de contrôle, suppression ou ajout d'une case,
-  avec la carte de l'étape (clic sur un point = case correspondante) ;
-* onglet **Rapport** : distance, durée, contrôles, cases à vérifier ;
-* **Projet** : enregistrer / rouvrir options et corrections (`.roadbook.json`),
-  exporter la configuration en `config.yaml` pour la ligne de commande ;
-* téléchargement du PDF, du CSV et du rapport ; thème clair ou sombre.
+* **fichiers** : glisser-déposer n'importe où dans la fenêtre (le type est
+  reconnu : .gpx, .csv, .osm/.bz2, projet .json, config .yaml), ou bouton
+  « Essayer avec l'exemple » ; le dernier travail est **restauré** à la
+  réouverture ;
+* **options** : toutes les options de mise en page, textes, numérotation,
+  détection et OpenStreetMap, avec aide, **recherche**, repère des valeurs
+  modifiées et retour à la valeur par défaut option par option ;
+  **modèles** en un clic (Carnet A5, A4 confort, Rouleau, Noir et blanc) ;
+* **aperçu en direct** : les pages s'affichent en images nettes, sans
+  clignotement et sans perdre la page en cours ; zoom (largeur, page entière,
+  pourcentage), navigation par page ;
+* **annuler / rétablir** toutes les modifications (Ctrl+Z, Ctrl+Maj+Z) ;
+* onglet **Cases** : correction des textes, dangers (! à !!!), codes de
+  contrôle, suppression ou ajout de case, « voir dans le PDF », carte de
+  l'étape ;
+* onglet **Rapport** : distance, durée, contrôles, cases à vérifier avec
+  accès direct à la case ;
+* **Projet** : enregistrer / rouvrir (`.roadbook.json`, Ctrl+S), exporter la
+  configuration en `config.yaml` ; téléchargement du PDF (Ctrl+D), du CSV et
+  du rapport ; thème clair ou sombre.
 
 ## Utilisation en ligne de commande
 

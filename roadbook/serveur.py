@@ -9,6 +9,7 @@ mémoire (et dans un dossier temporaire le temps de la lecture).
 from __future__ import annotations
 
 import base64
+import io
 import json
 import math
 import tempfile
@@ -17,8 +18,8 @@ import traceback
 import uuid
 import webbrowser
 from dataclasses import dataclass, field
-from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
 from importlib import resources
 from pathlib import Path
 
@@ -35,10 +36,19 @@ from .modifications import appliquer, identifiant_case
 from .options import SECTIONS, empreinte_analyse
 from .osm import ErreurOSM, charger_reseau
 from .poi import charger_csv
+from .layout import paginer
 from .render_pdf import generer_pdf
+
+try:  # aperçu des pages en images (facultatif : sinon le navigateur affiche le PDF)
+    import pypdfium2 as pdfium
+except ImportError:  # pragma: no cover
+    pdfium = None
 
 TAILLE_MAX = 300 * 1024 * 1024
 SESSIONS_MAX = 6
+RENDUS_GARDES = 3
+IMAGES_GARDEES = 300
+VERROU_PDFIUM = threading.Lock()  # pdfium n'est pas réentrant
 
 
 @dataclass
@@ -49,6 +59,39 @@ class Session:
     osm: bool
     empreinte: str
     journal: list[str] = field(default_factory=list)
+    rendus: dict[int, bytes] = field(default_factory=dict)  # révision -> PDF
+    images: dict[tuple, bytes] = field(default_factory=dict)  # (révision, page, largeur) -> PNG
+    revision: int = 0
+
+    def garder_pdf(self, pdf: bytes) -> int:
+        self.revision += 1
+        self.rendus[self.revision] = pdf
+        for ancienne in sorted(self.rendus)[:-RENDUS_GARDES]:
+            del self.rendus[ancienne]
+        self.images = {k: v for k, v in self.images.items() if k[0] in self.rendus}
+        return self.revision
+
+    def image(self, revision: int, numero: int, largeur: int) -> bytes:
+        cle = (revision, numero, largeur)
+        if cle not in self.images:
+            pdf = self.rendus.get(revision)
+            if pdf is None:
+                raise ErreurRequete("aperçu périmé")
+            with VERROU_PDFIUM:
+                doc = pdfium.PdfDocument(pdf)
+                try:
+                    if not 1 <= numero <= len(doc):
+                        raise ErreurRequete("page inexistante")
+                    page = doc[numero - 1]
+                    echelle = largeur / page.get_width()
+                    tampon = io.BytesIO()
+                    page.render(scale=echelle).to_pil().save(tampon, format="PNG", optimize=False)
+                finally:
+                    doc.close()
+            if len(self.images) > IMAGES_GARDEES:
+                self.images.clear()
+            self.images[cle] = tampon.getvalue()
+        return self.images[cle]
 
 
 class Etat:
@@ -147,6 +190,29 @@ def _case(i: Instruction, origines: dict) -> dict:
     }
 
 
+def _page_info(p) -> dict:
+    if p.type == "legende":
+        titre = "Légende"
+    elif p.type == "garde":
+        titre = f"{p.etape.nom} · page de garde"
+    else:
+        titre = f"{p.etape.nom} · {p.numero_dans_etape}/{p.pages_etape}"
+        if p.cases:
+            titre += f" · cases {p.cases[0].numero}–{p.cases[-1].numero}"
+    return {"numero": p.numero, "titre": titre, "largeur": round(p.largeur, 2), "hauteur": round(p.hauteur, 2),
+            "cases": [identifiant_case(i) for i in p.cases]}
+
+
+def _exemple() -> dict:
+    dossier = resources.files("roadbook").joinpath("web/exemple")
+    config = yaml.safe_load(dossier.joinpath("config.yaml").read_text(encoding="utf-8"))
+    return {
+        "gpx": {"nom": "exemple.gpx", "texte": dossier.joinpath("exemple.gpx").read_text(encoding="utf-8")},
+        "pois": [{"nom": "poi.csv", "texte": dossier.joinpath("poi.csv").read_text(encoding="utf-8")}],
+        "config": config,
+    }
+
+
 def rendre(requete: dict) -> dict:
     session = ETAT.sessions.get(requete.get("session", ""))
     if session is None:
@@ -160,12 +226,15 @@ def rendre(requete: dict) -> dict:
         "cases": [_case(i, origines) for i in instructions],
     }
     if requete.get("pdf", True):
+        _, pages = paginer(session.etapes, instructions, cfg)
         with tempfile.TemporaryDirectory(prefix="roadbook_") as tmp:
             chemin = Path(tmp) / "roadbook.pdf"
             attribution = "Routes © contributeurs OpenStreetMap (ODbL)" if session.osm else ""
             nb_pages, a = generer_pdf(session.etapes, instructions, cfg, chemin, attribution)
-            resultat["pdf"] = base64.b64encode(chemin.read_bytes()).decode("ascii")
-            resultat["pages"] = nb_pages
+            resultat["revision"] = session.garder_pdf(chemin.read_bytes())
+        resultat["pages"] = nb_pages
+        resultat["apercu_images"] = pdfium is not None
+        resultat["liste_pages"] = [_page_info(p) for p in pages]
         avert += a
     tous = session.avertissements + avert + ignorees
     resultat["avertissements"] = tous
@@ -193,11 +262,13 @@ class Gestionnaire(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):  # console silencieuse
         pass
 
-    def _envoyer(self, code: int, corps: bytes, type_: str) -> None:
+    def _envoyer(self, code: int, corps: bytes, type_: str, entetes: dict | None = None) -> None:
+        entetes = {"Cache-Control": "no-store", **(entetes or {})}
         self.send_response(code)
         self.send_header("Content-Type", type_)
         self.send_header("Content-Length", str(len(corps)))
-        self.send_header("Cache-Control", "no-store")
+        for k, v in entetes.items():
+            self.send_header(k, v)
         self.end_headers()
         self.wfile.write(corps)
 
@@ -206,12 +277,39 @@ class Gestionnaire(BaseHTTPRequestHandler):
                       "application/json; charset=utf-8")
 
     def do_GET(self):
-        if self.path in ("/", "/index.html"):
-            self._envoyer(200, _page(), "text/html; charset=utf-8")
-        elif self.path == "/api/options":
-            self._json(200, {"sections": SECTIONS, "defauts": DEFAUTS, "version": __version__})
-        else:
-            self._json(404, {"erreur": "introuvable"})
+        url = urlparse(self.path)
+        params = {k: v[0] for k, v in parse_qs(url.query).items()}
+        try:
+            if url.path in ("/", "/index.html"):
+                self._envoyer(200, _page(), "text/html; charset=utf-8")
+            elif url.path == "/api/options":
+                self._json(200, {"sections": SECTIONS, "defauts": DEFAUTS, "version": __version__,
+                                 "apercu_images": pdfium is not None})
+            elif url.path == "/api/exemple":
+                self._json(200, _exemple())
+            elif url.path in ("/api/pdf", "/api/page"):
+                session = ETAT.sessions.get(params.get("session", ""))
+                if session is None:
+                    raise ErreurRequete("session expirée")
+                revision = int(params.get("rev", session.revision))
+                if url.path == "/api/pdf":
+                    pdf = session.rendus.get(revision)
+                    if pdf is None:
+                        raise ErreurRequete("PDF périmé : regénérez")
+                    nom = params.get("nom", "roadbook.pdf").replace('"', "")
+                    disposition = "attachment" if params.get("telecharger") else "inline"
+                    self._envoyer(200, pdf, "application/pdf", {
+                        "Content-Disposition": f'{disposition}; filename="{nom}"'})
+                else:
+                    if pdfium is None:
+                        raise ErreurRequete("aperçu en images indisponible (pypdfium2 absent)")
+                    largeur = max(200, min(3000, int(params.get("largeur", 900))))
+                    png = session.image(revision, int(params.get("n", 1)), largeur)
+                    self._envoyer(200, png, "image/png", {"Cache-Control": "private, max-age=3600"})
+            else:
+                self._json(404, {"erreur": "introuvable"})
+        except (ErreurRequete, ValueError) as exc:
+            self._json(400, {"erreur": str(exc)})
 
     def do_POST(self):
         longueur = int(self.headers.get("Content-Length") or 0)
