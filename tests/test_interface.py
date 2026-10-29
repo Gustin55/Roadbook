@@ -1,0 +1,96 @@
+"""Serveur de l'interface graphique et corrections manuelles des cases."""
+
+import base64
+import json
+import threading
+import urllib.request
+from pathlib import Path
+
+import pytest
+
+from roadbook.serveur import creer_serveur
+
+EXEMPLES = Path(__file__).parent.parent / "examples"
+
+
+@pytest.fixture(scope="module")
+def url():
+    serveur = creer_serveur(0)
+    threading.Thread(target=serveur.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{serveur.server_address[1]}"
+    serveur.shutdown()
+    serveur.server_close()
+
+
+def appel(url, chemin, corps=None):
+    donnees = None if corps is None else json.dumps(corps).encode()
+    req = urllib.request.Request(url + chemin, data=donnees, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            brut = r.read()
+            return r.status, (json.loads(brut) if chemin.startswith("/api") else brut)
+    except urllib.error.HTTPError as e:
+        return e.code, json.loads(e.read())
+
+
+def fichiers():
+    return {
+        "gpx": {"nom": "exemple.gpx", "texte": (EXEMPLES / "exemple.gpx").read_text(encoding="utf-8")},
+        "pois": [{"nom": "poi.csv", "texte": (EXEMPLES / "poi.csv").read_text(encoding="utf-8")}],
+    }
+
+
+def test_page_et_options(url):
+    code, page = appel(url, "/")
+    assert code == 200 and b"Roadbook Studio" in page
+    code, d = appel(url, "/api/options")
+    chemins = [c["chemin"] for s in d["sections"] for c in s["champs"]]
+    assert "affichage.format" in chemins and "osm.carrefours_td" in chemins
+    assert d["defauts"]["affichage"]["format"] == "a5"
+
+
+def test_analyse_rendu_et_corrections(url):
+    code, d = appel(url, "/api/analyser", {**fichiers(), "config": {}})
+    assert code == 200, d
+    assert len(d["etapes"]) == 2 and d["pages"] == 7
+    assert base64.b64decode(d["pdf"]).startswith(b"%PDF")
+    cases = d["cases"]
+    virage = next(c for c in cases if c["type"] == "virage")
+    poi = next(c for c in cases if c["type"] == "poi")
+    modifs = {
+        "cases": {virage["id"]: {"description": "AD SUR PP", "danger": 3}, poi["id"]: {"supprime": True}},
+        "ajouts": [{"etape": cases[0]["etape"], "km": 1.5, "description": "TD PONT", "notes": ["Étroit"]}],
+    }
+    code, r = appel(url, "/api/rendu", {"session": d["session"], "config": {"affichage": {"format": "a4"}},
+                                       "modifications": modifs})
+    assert code == 200, r
+    assert r["pages"] == 6 and not r["analyse_perimee"]
+    par_id = {c["id"]: c for c in r["cases"]}
+    assert par_id[virage["id"]]["description"] == "AD SUR PP" and par_id[virage["id"]]["danger"] == 3
+    assert poi["id"] not in par_id
+    ajout = next(c for c in r["cases"] if c["manuel"])
+    assert ajout["description"] == "TD PONT" and ajout["notes"] == ["Étroit"]
+    # numéros et partiels recalculés
+    e1 = [c for c in r["cases"] if c["etape"] == cases[0]["etape"]]
+    assert [c["numero"] for c in e1] == list(range(1, len(e1) + 1))
+    assert sum(c["km_partiel"] for c in e1) == pytest.approx(e1[-1]["km_total"])
+    # une option de détection modifiée signale qu'il faut réanalyser
+    code, r = appel(url, "/api/rendu", {"session": d["session"], "config": {"calcul": {"seuil_virage_deg": 35}},
+                                       "pdf": False, "csv": True})
+    assert r["analyse_perimee"] and "pdf" not in r and r["csv"].startswith("numero;")
+
+
+def test_config_yaml_aller_retour(url):
+    code, d = appel(url, "/api/config-yaml", {"config": {"epreuve": {"nom": "Raid"}}})
+    assert code == 200 and "Raid" in d["yaml"]
+    code, r = appel(url, "/api/lire-config", {"texte": d["yaml"]})
+    assert r["config"]["epreuve"]["nom"] == "Raid"
+
+
+def test_erreurs_lisibles(url):
+    code, d = appel(url, "/api/rendu", {"session": "inconnue"})
+    assert code == 400 and "session" in d["erreur"]
+    code, d = appel(url, "/api/analyser", {"gpx": {"nom": "x.gpx", "texte": "pas du gpx"}})
+    assert code == 400 and "GPX illisible" in d["erreur"]
+    code, d = appel(url, "/api/analyser", {**fichiers(), "config": {"affichage": {"format": "a3"}}})
+    assert code == 400 and "format" in d["erreur"]

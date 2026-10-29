@@ -3,6 +3,7 @@
     roadbook genere trace.gpx --config config.yaml -o roadbook.pdf
     roadbook instructions trace.gpx --config config.yaml
     roadbook config-defaut > config.yaml
+    roadbook interface
 """
 
 from __future__ import annotations
@@ -82,6 +83,13 @@ def cmd_config(args) -> int:
     return 0
 
 
+def cmd_interface(args) -> int:
+    from .serveur import lancer
+
+    lancer(args.port, navigateur=not args.sans_navigateur)
+    return 0
+
+
 def construire_parseur() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="roadbook", description="Génère un road book PDF à partir d'une trace GPX.")
     p.add_argument("--version", action="version", version=f"roadbook {__version__}")
@@ -109,6 +117,11 @@ def construire_parseur() -> argparse.ArgumentParser:
     i = sous.add_parser("instructions", help="affiche le tableau des instructions (sans PDF)")
     communs(i)
     i.set_defaults(func=cmd_instructions)
+
+    ui = sous.add_parser("interface", help="ouvre l'interface graphique dans le navigateur")
+    ui.add_argument("--port", type=int, default=8765)
+    ui.add_argument("--sans-navigateur", action="store_true", help="ne pas ouvrir le navigateur")
+    ui.set_defaults(func=cmd_interface)
 
     d = sous.add_parser("config-defaut", help="affiche la configuration par défaut (YAML)")
     d.set_defaults(func=cmd_config)

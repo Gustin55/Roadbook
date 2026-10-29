@@ -171,6 +171,16 @@ def config_par_defaut() -> dict:
     return copy.deepcopy(DEFAUTS)
 
 
+def depuis_dict(donnees: dict) -> tuple[dict, list[str]]:
+    """Complète un dictionnaire partiel avec les valeurs par défaut et le valide."""
+    if not isinstance(donnees, dict):
+        raise ErreurConfig("la configuration doit être un dictionnaire")
+    avertissements: list[str] = []
+    cfg = _fusion(DEFAUTS, donnees, "", avertissements)
+    _valider(cfg)
+    return cfg, avertissements
+
+
 def charger_config(chemin: str | Path | None) -> tuple[dict, list[str]]:
     """Retourne (configuration complète, avertissements)."""
     avertissements: list[str] = []

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "roadbook"
-version = "0.2.0"
+version = "0.3.0"
 description = "Générateur de road book PDF (style rallye-raid) à partir d'une trace GPX"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,6 +24,9 @@ roadbook = "roadbook.cli:main"
 
 [tool.setuptools]
 packages = ["roadbook"]
+
+[tool.setuptools.package-data]
+roadbook = ["web/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

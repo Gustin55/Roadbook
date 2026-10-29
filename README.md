@@ -23,7 +23,33 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-## Utilisation
+## Interface graphique
+
+```bash
+roadbook interface
+```
+
+Sous Windows, double-cliquez simplement sur **`Lancer roadbook.bat`** : il
+installe l'outil au premier lancement puis ouvre l'interface dans le
+navigateur (Python 3.11+ requis).
+
+L'interface tourne en local (rien n'est envoyé sur Internet, sauf les
+requêtes OpenStreetMap si vous les activez) :
+
+* glisser-déposer de la trace GPX, du CSV de balises et d'un export OSM ;
+* **toutes les options** de mise en page, de textes, de numérotation, de
+  détection des virages et d'OpenStreetMap, avec une aide sur chacune ;
+* **aperçu PDF en direct** : chaque option de mise en page s'applique
+  immédiatement ; les options marquées « analyse » demandent de regénérer ;
+* onglet **Cases** : correction de la description et des notes, ajout d'un
+  danger (! à !!!) ou d'un code de contrôle, suppression ou ajout d'une case,
+  avec la carte de l'étape (clic sur un point = case correspondante) ;
+* onglet **Rapport** : distance, durée, contrôles, cases à vérifier ;
+* **Projet** : enregistrer / rouvrir options et corrections (`.roadbook.json`),
+  exporter la configuration en `config.yaml` pour la ligne de commande ;
+* téléchargement du PDF, du CSV et du rapport ; thème clair ou sombre.
+
+## Utilisation en ligne de commande
 
 ```bash
 roadbook genere trace.gpx -c config.yaml -p balises.csv -o roadbook.pdf --csv instructions.csv
@@ -194,6 +220,9 @@ et pourquoi :
 | `roadbook/render_pdf.py` | rendu PDF (ReportLab) |
 | `roadbook/export.py` | tableau texte, CSV, rapport |
 | `roadbook/cli.py` | ligne de commande |
+| `roadbook/serveur.py`, `roadbook/web/index.html` | interface graphique (serveur local + page web) |
+| `roadbook/options.py` | description des options affichées dans l'interface |
+| `roadbook/modifications.py` | corrections manuelles des cases |
 
 Tests : `pytest` (ligne droite, carré, rond-points synthétiques, distance
 géodésique, PDF et CLI sur la trace d'exemple, carrefours OSM sur un réseau

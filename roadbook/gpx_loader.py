@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import gpxpy
+import gpxpy.gpx
 import numpy as np
 
 from .geometry import segments
@@ -58,7 +59,10 @@ def nettoyer(lat, lon, ele, doublon_m: float) -> tuple[np.ndarray, np.ndarray, n
 
 def charger_gpx(chemin: str | Path, cfg: dict) -> DonneesGPX:
     with open(chemin, encoding="utf-8") as f:
-        gpx = gpxpy.parse(f)
+        try:
+            gpx = gpxpy.parse(f)
+        except gpxpy.gpx.GPXException as exc:
+            raise ValueError(f"{Path(chemin).name} : fichier GPX illisible ({exc})") from exc
     cal = cfg["calcul"]
     avert: list[str] = []
     brutes: list[tuple[str, list]] = []
