@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "roadbook"
+version = "0.1.0"
+description = "Générateur de road book PDF (style rallye-raid) à partir d'une trace GPX"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "gpxpy>=1.5",
+    "numpy>=1.24",
+    "pyproj>=3.5",
+    "reportlab>=4.0",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pypdf>=4"]
+
+[project.scripts]
+roadbook = "roadbook.cli:main"
+
+[tool.setuptools]
+packages = ["roadbook"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
