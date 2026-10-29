@@ -33,8 +33,11 @@ Sous Windows, double-cliquez simplement sur **`Lancer roadbook.bat`** : il
 installe l'outil au premier lancement puis ouvre l'interface dans le
 navigateur (Python 3.11+ requis).
 
-L'interface tourne en local (rien n'est envoyé sur Internet, sauf les
-requêtes OpenStreetMap si vous les activez) :
+L'interface tourne en local. Seuls partent sur Internet : les requêtes
+OpenStreetMap si vous les activez, et le chargement des tuiles du fond de
+carte (sans connexion, la carte reste utilisable, sans fond). Fonds :
+© contributeurs OpenStreetMap, OpenTopoMap (CC-BY-SA), imagerie © Esri.
+La bibliothèque de carte Leaflet (licence BSD) est livrée avec l'outil.
 
 * **fichiers** : glisser-déposer n'importe où dans la fenêtre (le type est
   reconnu : .gpx, .csv, .osm/.bz2, projet .json, config .yaml), ou bouton
@@ -51,6 +54,15 @@ requêtes OpenStreetMap si vous les activez) :
 * onglet **Cases** : correction des textes, dangers (! à !!!), codes de
   contrôle, suppression ou ajout de case, « voir dans le PDF », carte de
   l'étape ;
+* onglet **Carte** : la trace sur un **fond de carte** au choix (plan
+  OpenStreetMap, topographique OpenTopoMap, satellite Esri, ou sans fond),
+  avec les cases numérotées ; clic sur la trace = kilométrage du point ;
+* **outil checkpoints** : choisir un type (contrôle de passage CP, horaire
+  CH, secret CS, waypoint WP, danger, ravitaillement, information), cliquer
+  sur la trace : le point s'accroche à la trace, prend le numéro suivant
+  (CP4 après CP3…) et apparaît aussitôt dans le road book ; on le déplace en
+  le faisant glisser ; export des points en CSV (format du fichier de points
+  d'intérêt) ou en **GPX** (trace + waypoints, pour un GPS de bord) ;
 * onglet **Rapport** : distance, durée, contrôles, cases à vérifier avec
   accès direct à la case ;
 * **Projet** : enregistrer / rouvrir (`.roadbook.json`, Ctrl+S), exporter la

@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Roadbook Studio</title>
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+<script src="/vendor/leaflet/leaflet.js"></script>
 <style>
 :root {
   --fond: #f2f3f5;
@@ -317,6 +319,50 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
 .toast button:hover { background: rgba(255,255,255,.24); }
 @keyframes entree { from { opacity: 0; transform: translateY(8px); } }
 
+
+/* ---------- carte (fond OSM) ---------- */
+#vue-carte.active { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100%; }
+.zone-carte { position: relative; min-height: 0; }
+#carte-osm { position: absolute; inset: 0; background: var(--apercu); }
+#carte-osm.placement, #carte-osm.placement .leaflet-interactive { cursor: crosshair; }
+#carte-osm.placement .marqueur-case, #carte-osm.placement .marqueur-borne { pointer-events: none; opacity: .75; }
+.bandeau-placement { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 500; background: var(--accent); color: #fff; border-radius: 99px; padding: 7px 14px; font-weight: 600; font-size: 13px; box-shadow: var(--ombre-haute); display: flex; gap: 10px; align-items: center; white-space: nowrap; }
+.bandeau-placement button { border: 0; background: rgba(255,255,255,.2); color: #fff; border-radius: 99px; padding: 2px 10px; font-weight: 600; }
+.leaflet-container { font: inherit; }
+.leaflet-popup-content { margin: 10px 12px; font-size: 13px; line-height: 1.4; }
+.leaflet-popup-content b { font-size: 14px; }
+.popup-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.popup-actions button { border: 1px solid #d0d5dc; background: #fff; border-radius: 6px; padding: 3px 8px; font-size: 12px; color: #14181f; }
+.popup-actions button.primaire { background: #e8590c; border-color: #e8590c; color: #fff; }
+.marqueur-case { background: #fff; color: #14181f; border: 2px solid #14181f; border-radius: 99px; font: 700 10.5px/1 system-ui, sans-serif; display: grid; place-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.marqueur-case.controle { border-color: #1d4ed8; color: #1d4ed8; }
+.marqueur-case.danger { border-color: #c81e1e; color: #c81e1e; }
+.marqueur-case.actif { background: #e8590c; border-color: #e8590c; color: #fff; }
+.marqueur-point { display: flex; align-items: flex-end; }
+.marqueur-point span { background: #1d4ed8; color: #fff; font: 800 11px/1 system-ui, sans-serif; padding: 4px 6px; border-radius: 6px 6px 6px 0; box-shadow: 0 2px 6px rgba(0,0,0,.35); white-space: nowrap; border: 1.5px solid #fff; }
+.marqueur-point.danger span { background: #c81e1e; } .marqueur-point.ravitaillement span { background: #15803d; } .marqueur-point.info span { background: #545d6b; }
+.marqueur-point.choisi span { outline: 3px solid #e8590c; }
+.marqueur-borne { background: #14181f; color: #fff; border-radius: 50%; border: 2px solid #fff; font: 800 11px/1 system-ui, sans-serif; display: grid; place-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.panneau-points { border-left: 1px solid var(--bord); background: var(--panneau); display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+.panneau-points .tete-points { padding: 14px; border-bottom: 1px solid var(--bord); display: grid; gap: 10px; }
+.panneau-points .tete-points p { margin: 0; color: var(--texte-3); font-size: 12px; }
+.outil-placer { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.outil-placer .btn.actif { background: var(--entete); border-color: var(--entete); }
+.liste-points { overflow: auto; padding: 10px 14px; display: grid; gap: 8px; align-content: start; }
+.point-ligne { border: 1px solid var(--bord); border-radius: var(--rayon); padding: 9px 10px; display: grid; gap: 7px; background: var(--panneau-2); transition: border-color var(--transition), box-shadow var(--transition); }
+.point-ligne.choisi { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+.point-ligne .haut { display: flex; align-items: center; gap: 8px; }
+.point-ligne .pastille-code { font-weight: 800; font-size: 12px; color: #fff; background: var(--bleu); border-radius: 6px; padding: 2px 7px; min-width: 38px; text-align: center; }
+.point-ligne .pastille-code.danger { background: var(--rouge); } .point-ligne .pastille-code.ravitaillement { background: var(--vert); } .point-ligne .pastille-code.info { background: var(--texte-2); }
+.point-ligne .ou { color: var(--texte-2); font-size: 12.5px; flex: 1; font-variant-numeric: tabular-nums; }
+.point-ligne .ou.hors { color: var(--rouge); }
+.point-ligne input, .point-ligne select { border: 1px solid var(--bord); background: var(--panneau); border-radius: 6px; padding: 5px 7px; font-size: 13px; width: 100%; }
+.point-ligne .rang { display: grid; grid-template-columns: 90px 1fr; gap: 6px; }
+.point-ligne .icone-btn { width: 28px; height: 28px; }
+.vide-points { color: var(--texte-3); font-size: 13px; text-align: center; padding: 26px 10px; }
+.exports-points { padding: 12px 14px; border-top: 1px solid var(--bord); display: flex; gap: 8px; flex-wrap: wrap; }
+.exports-points .btn { flex: 1; justify-content: center; padding: 7px 8px; font-size: 13px; }
+
 @media (max-width: 1400px) {
   /* carte et ajout passent au-dessus de la table, côte à côte */
   #vue-cases.active { display: flex; flex-direction: column; overflow: auto; height: 100%; }
@@ -342,6 +388,9 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
   table.cases { min-width: 680px; }
   #vue-rapport.active, #vue-cases.active { height: auto; }
   .etapes-aide { grid-template-columns: 1fr; }
+  #vue-carte.active { display: block; height: auto; }
+  .zone-carte { height: 70vh; }
+  .panneau-points { border-left: 0; border-top: 1px solid var(--bord); }
   .barre-apercu select { flex: 1; min-width: 0; max-width: none; }
   #zoom-moins, #zoom-plus, #zoom-valeur, .barre-apercu .separateur, .barre-apercu .espace { display: none; }
   .carte-panneau { grid-template-columns: 1fr; }
@@ -434,6 +483,7 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
     <nav class="onglets" role="tablist">
       <button class="actif" data-vue="apercu" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Aperçu <span class="compteur" id="nb-pages">–</span></button>
       <button data-vue="cases" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Cases <span class="compteur" id="nb-cases">–</span></button>
+      <button data-vue="carte" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/></svg>Carte <span class="compteur" id="nb-points">0</span></button>
       <button data-vue="rapport" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Rapport <span class="compteur" id="nb-avert">–</span></button>
       <span class="infos" id="infos"></span>
     </nav>
@@ -507,6 +557,36 @@ pre.rapport { background: var(--panneau); border: 1px solid var(--bord); border-
       </div>
     </section>
 
+    <section class="vue" id="vue-carte">
+      <div class="zone-carte">
+        <div id="carte-osm" aria-label="Carte de la trace"></div>
+        <div class="bandeau-placement" id="bandeau-placement" hidden>Cliquez sur la trace pour placer le point <button id="fin-placement">Terminer · Échap</button></div>
+      </div>
+      <div class="panneau-points">
+        <div class="tete-points">
+          <h3 class="sous-titre" style="margin:0">Checkpoints et points</h3>
+          <div class="outil-placer">
+            <select class="saisie" id="type-point" aria-label="Type de point">
+              <option value="cp">Contrôle de passage (CP)</option>
+              <option value="ch">Contrôle horaire (CH)</option>
+              <option value="cs">Contrôle secret (CS)</option>
+              <option value="wp">Waypoint (WP)</option>
+              <option value="danger">Danger</option>
+              <option value="ravitaillement">Ravitaillement</option>
+              <option value="info">Information</option>
+            </select>
+            <button class="btn primaire" id="btn-placer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><path d="M12 7v6M9 10h6"/></svg>Placer</button>
+          </div>
+          <p>Le point s'accroche à la trace, prend le numéro suivant et s'ajoute au road book. Faites-le glisser pour le déplacer.</p>
+        </div>
+        <div class="liste-points" id="liste-points"></div>
+        <div class="exports-points">
+          <button class="btn" id="btn-points-csv" title="Au format du CSV de points d'intérêt">Exporter CSV</button>
+          <button class="btn" id="btn-points-gpx" title="Trace et points pour un GPS">Exporter GPX</button>
+        </div>
+      </div>
+    </section>
+
     <section class="vue" id="vue-rapport">
       <div class="cartes-stats" id="stats"></div>
       <h3 style="margin:0 0 10px">Avertissements</h3>
@@ -550,7 +630,7 @@ const base = {
 const E = {
   sections: [], defauts: null, config: null, fichiers: { gpx: null, pois: [], osm: [] },
   session: null, empreinteSession: null, revision: 0, imagesOk: true,
-  cases: [], etapes: [], listePages: [], modifs: { cases: {}, ajouts: [] },
+  cases: [], etapes: [], listePages: [], modifs: { cases: {}, ajouts: [], points: [] }, points: [], placement: false,
   avertissements: [], rapport: "", pages: 0, selection: null, etapeCarte: null,
 };
 
@@ -953,7 +1033,7 @@ async function rendre() {
 }
 function appliquerResultat(d) {
   E.cases = d.cases; E.avertissements = d.avertissements; E.rapport = d.rapport; E.pages = d.pages;
-  E.listePages = d.liste_pages || []; E.revision = d.revision; E.imagesOk = d.apercu_images;
+  E.listePages = d.liste_pages || []; E.revision = d.revision; E.imagesOk = d.apercu_images; E.points = d.points || [];
   $("#vide").hidden = true; $("#barre-apercu").hidden = false;
   $("#btn-export").disabled = false;
   const nbVerif = E.cases.filter((c) => c.remarques.length).length;
@@ -965,6 +1045,7 @@ function appliquerResultat(d) {
   const h = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   statut(`À jour · ${E.pages} pages · ${h}`, "ok");
   majVisionneuse(); dessinerCases(); dessinerCarte(); dessinerRapport(); majEtatAnalyse();
+  dessinerListePoints(); majCarteOsm();
 }
 
 // ------------------------------------------------------------------ visionneuse
@@ -1222,6 +1303,197 @@ function dessinerCarte() {
   $$("g[data-id]", carte).forEach((g) => (g.onclick = () => { montrerVue("cases"); selectionner(g.dataset.id); }));
 }
 
+
+// ------------------------------------------------------------------ carte avec fond OpenStreetMap
+const TYPES_POINT = {
+  cp: { type: "controle", prefixe: "CP", libelle: "Contrôle de passage" },
+  ch: { type: "controle", prefixe: "CH", libelle: "Contrôle horaire" },
+  cs: { type: "controle", prefixe: "CS", libelle: "Contrôle secret" },
+  wp: { type: "controle", prefixe: "WP", libelle: "Waypoint" },
+  danger: { type: "danger", libelle: "Danger" },
+  ravitaillement: { type: "ravitaillement", libelle: "Ravitaillement" },
+  info: { type: "info", libelle: "Information" },
+};
+const M = { carte: null, fonds: null, traces: null, cases: null, points: null, erreurTuile: false, choisi: null, sessionTracee: null };
+function creerCarte() {
+  if (M.carte || typeof L === "undefined") return;
+  M.carte = L.map("carte-osm", { zoomControl: true, preferCanvas: false });
+  const attributionOsm = '© contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
+  M.fonds = {
+    "Plan (OpenStreetMap)": L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: attributionOsm }),
+    "Topographique": L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, subdomains: "abc", attribution: attributionOsm + ', SRTM · style © <a href="https://opentopomap.org" target="_blank">OpenTopoMap</a> (CC-BY-SA)' }),
+    "Satellite": L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Imagerie © Esri, Maxar, Earthstar Geographics" }),
+    "Sans fond": L.layerGroup(),
+  };
+  for (const couche of Object.values(M.fonds)) couche.on?.("tileerror", () => {
+    if (M.erreurTuile) return; M.erreurTuile = true;
+    toast("Fond de carte indisponible (pas de connexion Internet ?). La trace et les points restent utilisables.", { erreur: true });
+  });
+  const nomFond = stock.lire("fond") in M.fonds ? stock.lire("fond") : "Plan (OpenStreetMap)";
+  M.fonds[nomFond].addTo(M.carte);
+  M.traces = L.layerGroup().addTo(M.carte);
+  M.cases = L.layerGroup().addTo(M.carte);
+  M.points = L.layerGroup().addTo(M.carte);
+  L.control.layers(M.fonds, { "Cases du road book": M.cases, "Checkpoints et points": M.points }, { position: "topright" }).addTo(M.carte);
+  L.control.scale({ imperial: false }).addTo(M.carte);
+  M.carte.on("baselayerchange", (e) => stock.ecrire("fond", e.name));
+  M.carte.on("click", (e) => { if (E.placement) placerPoint(e.latlng); });
+  M.carte.on("popupopen", (e) => brancherPopup(e.popup.getElement()));
+}
+function majCarteOsm(recadrer = false) {
+  if (!M.carte) return;
+  if (M.sessionTracee !== E.session) { dessinerTraces(); recadrer = true; M.sessionTracee = E.session; }
+  dessinerMarqueursCases(); dessinerMarqueursPoints();
+  if (recadrer) recadrerCarte();
+}
+function recadrerCarte() {
+  const limites = L.latLngBounds(E.etapes.flatMap((e) => e.latlon || []));
+  if (limites.isValid()) M.carte.fitBounds(limites, { padding: [30, 30] });
+}
+function dessinerTraces() {
+  M.traces.clearLayers();
+  const couleurs = ["#e8590c", "#7c3aed", "#0891b2", "#be185d", "#4d7c0f"];
+  E.etapes.forEach((e, k) => {
+    if (!e.latlon?.length) return;
+    L.polyline(e.latlon, { color: "#fff", weight: 8, opacity: 0.9, interactive: false }).addTo(M.traces);
+    const ligne = L.polyline(e.latlon, { color: couleurs[k % couleurs.length], weight: 4.5, opacity: 0.95, bubblingMouseEvents: false }).addTo(M.traces);
+    ligne.bindTooltip(e.nom, { sticky: true });
+    ligne.on("click", (ev) => { if (E.placement) placerPoint(ev.latlng); else infoTrace(ev.latlng); });
+    const borne = (pos, lettre, titre) => L.marker(pos, { icon: L.divIcon({ className: "marqueur-borne", html: lettre, iconSize: [22, 22] }), title: titre, keyboard: false }).addTo(M.traces);
+    borne(e.latlon[0], "D", `Départ · ${e.nom}`);
+    borne(e.latlon.at(-1), "A", `Arrivée · ${e.nom}`);
+  });
+}
+function dessinerMarqueursCases() {
+  M.cases.clearLayers();
+  const aff = E.config.affichage;
+  for (const c of E.cases) {
+    if (c.lat == null) continue;
+    const cls = ["marqueur-case", c.controle ? "controle" : c.danger ? "danger" : "", E.selection === c.id ? "actif" : ""].join(" ");
+    const taille = String(c.numero).length > 2 ? 28 : 22;
+    const m = L.marker([c.lat, c.lon], { icon: L.divIcon({ className: cls, html: String(c.numero), iconSize: [taille, 22] }), title: `Case ${c.numero}`, riseOnHover: true });
+    m.bindPopup(`<b>Case ${c.numero}</b> · km ${km(c.km_total, aff.decimales_total)}<br>${echapper(c.description)}${c.notes.length ? "<br><span style='color:#545d6b'>" + echapper(c.notes.join(" · ")) + "</span>" : ""}
+      <div class="popup-actions"><button data-action="case" data-id="${echapper(c.id)}">Modifier la case</button><button data-action="pdf" data-id="${echapper(c.id)}">Voir dans le PDF</button></div>`);
+    m.addTo(M.cases);
+  }
+}
+function etiquettePoint(p) { return p.code || TYPES_POINT[p.genre]?.libelle || p.type; }
+function dessinerMarqueursPoints() {
+  M.points.clearLayers();
+  for (const p of E.modifs.points) {
+    const cls = `marqueur-point ${p.type}${M.choisi === p.id ? " choisi" : ""}`;
+    const texte = p.type === "danger" ? "!".repeat(p.niveau || 2) : etiquettePoint(p);
+    const m = L.marker([p.lat, p.lon], { draggable: true, icon: L.divIcon({ className: cls, html: `<span>${echapper(texte)}</span>`, iconSize: [0, 0], iconAnchor: [0, 22] }), title: etiquettePoint(p), zIndexOffset: 1000 });
+    m.on("click", () => choisirPoint(p.id));
+    m.on("dragend", async () => {
+      try { Object.assign(p, await accrocherPosition(m.getLatLng())); modifsChangees(); dessinerListePoints(); }
+      catch (e) { toast(e.message, { erreur: true }); m.setLatLng([p.lat, p.lon]); }
+    });
+    m.addTo(M.points);
+  }
+}
+function brancherPopup(el) {
+  $$("button[data-action]", el).forEach((b) => (b.onclick = async () => {
+    const id = b.dataset.id;
+    if (b.dataset.action === "case") { M.carte.closePopup(); montrerVue("cases"); selectionner(id); }
+    else if (b.dataset.action === "pdf") { M.carte.closePopup(); voirDansPdf(id); }
+    else if (b.dataset.action === "ajouter") { M.carte.closePopup(); await placerPoint(L.latLng(Number(b.dataset.lat), Number(b.dataset.lon))); }
+  }));
+}
+async function accrocherPosition(latlng) {
+  const d = await api("/api/accrocher", { session: E.session, lat: latlng.lat, lon: latlng.lng });
+  return { lat: d.lat, lon: d.lon, etape: d.etape, km: d.km };
+}
+async function infoTrace(latlng) {
+  if (!E.session) return;
+  try {
+    const d = await api("/api/accrocher", { session: E.session, lat: latlng.lat, lon: latlng.lng });
+    L.popup().setLatLng([d.lat, d.lon]).setContent(`<b>km ${km(d.km, 2)}</b><br>${echapper(d.etape)}
+      <div class="popup-actions"><button class="primaire" data-action="ajouter" data-lat="${d.lat}" data-lon="${d.lon}">＋ ${echapper(TYPES_POINT[$("#type-point").value].libelle)} ici</button></div>`).openOn(M.carte);
+  } catch (e) { toast(e.message, { erreur: true }); }
+}
+function prochainCode(prefixe) {
+  const codes = E.modifs.points.map((p) => p.code).concat(E.cases.flatMap((c) => (c.controle || "").split(" ")));
+  const n = codes.map((c) => (new RegExp("^" + prefixe + "(\\d+)$").exec(c || "") || [])[1]).filter(Boolean).map(Number);
+  return prefixe + ((n.length ? Math.max(...n) : 0) + 1);
+}
+async function placerPoint(latlng) {
+  if (!E.session) return toast("Générez d'abord le road book", { erreur: true });
+  const genre = $("#type-point").value, def = TYPES_POINT[genre];
+  try {
+    const pos = await accrocherPosition(latlng);
+    const p = { id: "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), genre, type: def.type,
+      code: def.prefixe ? prochainCode(def.prefixe) : "", description: "", niveau: def.type === "danger" ? 2 : 0, ...pos };
+    E.modifs.points.push(p);
+    M.choisi = p.id; modifsChangees(); dessinerMarqueursPoints(); dessinerListePoints();
+    toast(`${p.code || def.libelle} placé au km ${km(p.km, 2)}`, { action: { libelle: "Annuler", faire: () => deplacerHistorique(-1) } });
+    $(`.point-ligne[data-id="${p.id}"] input.desc-point`)?.focus({ preventScroll: true });
+  } catch (e) { toast(e.message, { erreur: true }); }
+}
+function modePlacement(actif) {
+  E.placement = actif;
+  $("#carte-osm").classList.toggle("placement", actif);
+  $("#bandeau-placement").hidden = !actif;
+  $("#btn-placer").classList.toggle("actif", actif);
+  $("#btn-placer").lastChild.textContent = actif ? "Terminer" : "Placer";
+}
+function choisirPoint(id, centrer = false) {
+  M.choisi = id; dessinerMarqueursPoints(); dessinerListePoints();
+  const p = E.modifs.points.find((x) => x.id === id);
+  if (p && centrer) M.carte?.setView([p.lat, p.lon], Math.max(M.carte.getZoom(), 15));
+  $(`.point-ligne[data-id="${id}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+function dessinerListePoints() {
+  const zone = $("#liste-points"); zone.innerHTML = "";
+  const ordre = Object.fromEntries(E.etapes.map((e, k) => [e.nom, k]));
+  const points = [...E.modifs.points].sort((a, b) => (ordre[a.etape] ?? 99) - (ordre[b.etape] ?? 99) || (a.km ?? 0) - (b.km ?? 0));
+  $("#nb-points").textContent = points.length;
+  if (!points.length) { zone.innerHTML = `<div class="vide-points">Aucun point.<br>Choisissez un type puis « Placer », ou cliquez sur la trace.</div>`; return; }
+  const etat = Object.fromEntries((E.points || []).map((x) => [x.id, x]));
+  for (const p of points) {
+    const d = document.createElement("div"); d.className = "point-ligne" + (M.choisi === p.id ? " choisi" : ""); d.dataset.id = p.id;
+    const hors = etat[p.id] && etat[p.id].km == null;
+    const ou = hors ? "hors de la trace" : `${p.etape} · km ${km(p.km, 2)}`;
+    d.innerHTML = `<div class="haut"><span class="pastille-code ${p.type}">${echapper(p.type === "danger" ? "!".repeat(p.niveau || 2) : p.code || TYPES_POINT[p.genre]?.libelle || p.type)}</span>
+        <span class="ou${hors ? " hors" : ""}">${echapper(ou)}</span>
+        <button class="icone-btn centrer" title="Centrer la carte" aria-label="Centrer la carte">${svg('<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>', 14)}</button>
+        <button class="icone-btn supprimer" title="Supprimer le point" aria-label="Supprimer le point">${svg('<path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', 14)}</button></div>
+      <div class="rang">${p.type === "controle" ? `<input class="code-point" value="${echapper(p.code)}" aria-label="Code">` : p.type === "danger" ? `<select class="niveau-point" aria-label="Niveau"><option value="1">!</option><option value="2">!!</option><option value="3">!!!</option></select>` : `<span></span>`}
+        <input class="desc-point" value="${echapper(p.description)}" placeholder="Description (facultatif)" aria-label="Description"></div>`;
+    if (p.type !== "controle" && p.type !== "danger") d.querySelector(".rang").style.gridTemplateColumns = "1fr";
+    const code = $(".code-point", d), niveau = $(".niveau-point", d), desc = $(".desc-point", d);
+    if (code) code.onchange = () => { p.code = code.value.trim().toUpperCase(); code.value = p.code; modifsChangees(); dessinerMarqueursPoints(); };
+    if (niveau) { niveau.value = String(p.niveau || 2); niveau.onchange = () => { p.niveau = Number(niveau.value); modifsChangees(); dessinerMarqueursPoints(); }; }
+    desc.onchange = () => { p.description = desc.value.trim(); modifsChangees(); };
+    $(".centrer", d).onclick = () => choisirPoint(p.id, true);
+    $(".supprimer", d).onclick = () => {
+      E.modifs.points = E.modifs.points.filter((x) => x.id !== p.id); modifsChangees(); dessinerMarqueursPoints(); dessinerListePoints();
+      toast(`${etiquettePoint(p)} supprimé`, { action: { libelle: "Annuler", faire: () => deplacerHistorique(-1) } });
+    };
+    d.addEventListener("focusin", () => { if (M.choisi !== p.id) { M.choisi = p.id; dessinerMarqueursPoints(); $$(".point-ligne").forEach((x) => x.classList.toggle("choisi", x === d)); } });
+    zone.append(d);
+  }
+}
+function exporterPointsCsv() {
+  const lignes = ["lat;lon;type;description;code;niveau;km;etape"];
+  for (const p of E.modifs.points) {
+    const champ = (v) => { const t = String(v ?? ""); return /[;"\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+    lignes.push([p.lat, p.lon, p.type, p.description, p.code, p.niveau || "", p.km ?? "", p.etape ?? ""].map(champ).join(";"));
+  }
+  telecharger(nomFichier(".points.csv"), "﻿" + lignes.join("\n") + "\n", "text/csv;charset=utf-8");
+}
+async function exporterPointsGpx() {
+  try { const d = await api("/api/gpx", { session: E.session, config: E.config, modifications: E.modifs }); telecharger(nomFichier(".gpx"), d.gpx, "application/gpx+xml"); }
+  catch (e) { toast(e.message, { erreur: true }); }
+}
+function brancherCarteOsm() {
+  $("#btn-placer").onclick = () => { if (!E.session) return toast("Générez d'abord le road book", { erreur: true }); modePlacement(!E.placement); };
+  $("#fin-placement").onclick = () => modePlacement(false);
+  $("#btn-points-csv").onclick = exporterPointsCsv;
+  $("#btn-points-gpx").onclick = exporterPointsGpx;
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && E.placement) modePlacement(false); });
+}
+
 // ------------------------------------------------------------------ rapport
 function dessinerRapport() {
   const ctrl = E.cases.filter((c) => c.controle).length, dangers = E.cases.filter((c) => c.danger).length;
@@ -1255,7 +1527,7 @@ async function ouvrirProjet(f) {
       const p = JSON.parse(texte);
       if (!p.config) throw new Error("ce n'est pas un projet roadbook");
       E.config = fusion(E.defauts, p.config);
-      E.modifs = { cases: {}, ajouts: [], ...(p.modifications || {}) };
+      E.modifs = { cases: {}, ajouts: [], points: [], ...(p.modifications || {}) };
     } else {
       const d = await api("/api/lire-config", { texte });
       E.config = d.config; if (d.avertissements.length) toast(d.avertissements.join(" · "), { erreur: true });
@@ -1271,7 +1543,7 @@ function enregistrerProjet() {
 async function chargerExemple() {
   try {
     const d = await api("/api/exemple");
-    E.config = fusion(E.defauts, d.config); E.modifs = { cases: {}, ajouts: [] };
+    E.config = fusion(E.defauts, d.config); E.modifs = { cases: {}, ajouts: [], points: [] };
     E.fichiers = { gpx: d.gpx, pois: d.pois, osm: [] };
     persister(); construireOptions(); majTitre(); majDepots(); memoriser(true); base.ecrire("dernier", E.fichiers);
     await analyser();
@@ -1283,6 +1555,8 @@ function montrerVue(id) {
   $$(".onglets button").forEach((b) => { const a = b.dataset.vue === id; b.classList.toggle("actif", a); b.setAttribute("aria-selected", a); });
   $$(".vue").forEach((v) => v.classList.toggle("active", v.id === "vue-" + id));
   if (id === "cases") dessinerCarte();
+  if (id === "carte") { creerCarte(); requestAnimationFrame(() => { M.carte?.invalidateSize(); majCarteOsm(); }); }
+  if (id !== "carte" && E.placement) modePlacement(false);
   if (id === "apercu" && typeof V.zoom !== "number" && E.listePages.length) zoomer(V.zoom);
 }
 function telechargerPdf() { if (E.session) telecharger(nomFichier(".pdf"), urlPdf(true)); }
@@ -1309,7 +1583,7 @@ function brancherActions() {
   $("#fichier-projet").onchange = (ev) => { const f = ev.target.files[0]; ev.target.value = ""; if (f) ouvrirProjet(f); };
   $("#btn-nouveau").onclick = () => {
     if (!confirm("Commencer un nouveau road book ? Les fichiers et les corrections de cases seront retirés (les options sont gardées).")) return;
-    E.fichiers = { gpx: null, pois: [], osm: [] }; E.modifs = { cases: {}, ajouts: [] }; E.session = null; E.cases = []; E.etapes = []; E.listePages = [];
+    E.fichiers = { gpx: null, pois: [], osm: [] }; E.modifs = { cases: {}, ajouts: [], points: [] }; E.session = null; E.cases = []; E.etapes = []; E.listePages = [];
     persister(); base.ecrire("dernier", E.fichiers); majDepots(); memoriser(true);
     $("#vide").hidden = false; $("#barre-apercu").hidden = true; $("#pages").innerHTML = ""; $("#btn-export").disabled = true;
     ["#nb-pages", "#nb-cases", "#nb-avert"].forEach((s) => ($(s).textContent = "–")); $("#infos").textContent = "";
@@ -1359,13 +1633,13 @@ function brancherActions() {
 // ------------------------------------------------------------------ démarrage
 (async function () {
   const theme = stock.lire("theme"); if (theme) document.documentElement.dataset.theme = theme;
-  brancherActions(); brancherVisionneuse();
+  brancherActions(); brancherVisionneuse(); brancherCarteOsm();
   brancherDepot("gpx", "gpx"); brancherDepot("poi", "pois"); brancherDepot("osm", "osm");
   try {
     const d = await api("/api/options");
     E.sections = d.sections; E.defauts = d.defauts; E.imagesOk = d.apercu_images; $("#version").textContent = "v" + d.version;
     E.config = fusion(d.defauts, stock.lire("config") || {});
-    E.modifs = { cases: {}, ajouts: [], ...(stock.lire("modifs") || {}) };
+    E.modifs = { cases: {}, ajouts: [], points: [], ...(stock.lire("modifs") || {}) };
     construireModeles(); construireOptions(); majTitre(); memoriser(true);
     const dernier = await base.lire("dernier");
     if (dernier?.gpx) {

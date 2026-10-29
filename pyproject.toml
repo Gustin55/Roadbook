@@ -27,7 +27,7 @@ roadbook = "roadbook.cli:main"
 packages = ["roadbook"]
 
 [tool.setuptools.package-data]
-roadbook = ["web/*.html", "web/exemple/*"]
+roadbook = ["web/*.html", "web/exemple/*", "web/vendor/leaflet/*", "web/vendor/leaflet/images/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

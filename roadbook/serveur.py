@@ -31,11 +31,13 @@ from .config import DEFAUTS, ErreurConfig, depuis_dict
 from .export import exporter_csv, rapport
 from .geometry import vers_plan_local
 from .gpx_loader import charger_gpx
-from .instructions import Etape, Instruction, analyser, generer_instructions, reechantillonner_traces
+from .geometry import projeter_sur_trace
+from .instructions import (Etape, Instruction, analyser, generer_instructions, rattacher_pois,
+                           reechantillonner_traces)
 from .modifications import appliquer, identifiant_case
 from .options import SECTIONS, empreinte_analyse
 from .osm import ErreurOSM, charger_reseau
-from .poi import charger_csv
+from .poi import PointInteret, charger_csv
 from .layout import paginer
 from .render_pdf import generer_pdf
 
@@ -167,7 +169,8 @@ def _carte(etape: Etape, n_max: int = 700) -> dict:
     idx = np.unique(np.concatenate([np.arange(0, len(tr.s), pas), [len(tr.s) - 1]]))
     x, y = vers_plan_local(tr.lat[idx], tr.lon[idx], lat0, lon0)
     return {"nom": etape.nom, "longueur_km": round(tr.longueur / 1000, 3), "origine": [lat0, lon0],
-            "points": [[round(float(a), 1), round(float(b), 1)] for a, b in zip(x, y)]}
+            "points": [[round(float(a), 1), round(float(b), 1)] for a, b in zip(x, y)],
+            "latlon": [[round(float(a), 6), round(float(b), 6)] for a, b in zip(tr.lat[idx], tr.lon[idx])]}
 
 
 def _case(i: Instruction, origines: dict) -> dict:
@@ -186,6 +189,7 @@ def _case(i: Instruction, origines: dict) -> dict:
         "pois": [{"type": p.type, "code": p.code, "niveau": p.niveau, "description": p.description}
                  for p in i.pois],
         "remarques": i.remarques, "x": round(float(x), 1), "y": round(float(y), 1),
+        "lat": round(i.lat, 6), "lon": round(i.lon, 6),
         "manuel": getattr(i, "manuel", False),
     }
 
@@ -213,24 +217,110 @@ def _exemple() -> dict:
     }
 
 
+TYPES_POINTS = {"controle", "danger", "ravitaillement", "passage_niveau", "stop", "carrefour", "info"}
+
+
+def points_carte(modifications: dict | None) -> list[PointInteret]:
+    """Points (checkpoints, dangers…) posés sur la carte de l'interface."""
+    resultat = []
+    for pt in (modifications or {}).get("points") or []:
+        try:
+            lat, lon = float(pt["lat"]), float(pt["lon"])
+            km = float(pt["km"]) if pt.get("km") is not None else None
+        except (KeyError, TypeError, ValueError):
+            continue
+        type_ = pt.get("type") if pt.get("type") in TYPES_POINTS else "info"
+        resultat.append(PointInteret(
+            lat, lon, type_, str(pt.get("description") or "").strip(),
+            code=str(pt.get("code") or "").strip().upper() if type_ == "controle" else "",
+            niveau=max(0, min(3, int(pt.get("niveau") or (2 if type_ == "danger" else 0)))),
+            km=km, etape=pt.get("etape") or None, source=f"carte:{pt.get('id', '')}"))
+    return resultat
+
+
+def _avec_points(session: Session, points: list[PointInteret], cfg: dict) -> tuple[list[Etape], list[str]]:
+    if not points:
+        return session.etapes, []
+    etapes = [Etape(e.nom, e.trace, e.manoeuvres, pois=list(e.pois), remarques=e.remarques)
+              for e in session.etapes]
+    return etapes, rattacher_pois(etapes, points, cfg["calcul"])
+
+
+def accrocher(requete: dict) -> dict:
+    """Point de la trace le plus proche d'un clic sur la carte."""
+    session = ETAT.sessions.get(requete.get("session", ""))
+    if session is None:
+        raise ErreurRequete("session expirée : relancez l'analyse")
+    lat, lon = float(requete["lat"]), float(requete["lon"])
+    meilleur = None
+    for e in session.etapes:
+        for s, ecart in projeter_sur_trace(lat, lon, e.trace, 3000.0):
+            if meilleur is None or ecart < meilleur[2]:
+                meilleur = (e, s, ecart)
+    if meilleur is None:
+        raise ErreurRequete("trop loin de la trace (plus de 3 km)")
+    e, s, ecart = meilleur
+    plat, plon = e.trace.position(s)
+    return {"etape": e.nom, "km": round(s / 1000, 4), "lat": round(plat, 7), "lon": round(plon, 7),
+            "ecart_m": round(ecart, 1)}
+
+
+def exporter_gpx(requete: dict) -> str:
+    """Trace et points de contrôle en GPX (pour un GPS de bord)."""
+    import gpxpy.gpx
+
+    session = ETAT.sessions.get(requete.get("session", ""))
+    if session is None:
+        raise ErreurRequete("session expirée : relancez l'analyse")
+    cfg, _ = _config(requete.get("config"))
+    etapes, _ = _avec_points(session, points_carte(requete.get("modifications")), cfg)
+    gpx = gpxpy.gpx.GPX()
+    gpx.creator = f"roadbook {__version__}"
+    gpx.name = cfg["epreuve"]["nom"]
+    for e in etapes:
+        trk = gpxpy.gpx.GPXTrack(name=e.nom)
+        seg = gpxpy.gpx.GPXTrackSegment()
+        tr = e.trace
+        for la, lo in zip(tr.lat_originaux, tr.lon_originaux):
+            seg.points.append(gpxpy.gpx.GPXTrackPoint(round(float(la), 7), round(float(lo), 7)))
+        trk.segments.append(seg)
+        gpx.tracks.append(trk)
+        for p in sorted(e.pois, key=lambda p: p.s_m or 0):
+            if p.s_m is None or p.source.startswith("OSM:"):
+                continue
+            la, lo = tr.position(p.s_m)
+            nom = p.code or {"danger": "DZ" + "!" * max(1, p.niveau)}.get(p.type, p.type.upper())
+            w = gpxpy.gpx.GPXWaypoint(round(la, 7), round(lo, 7), name=nom,
+                                      description=p.description or None, comment=f"{e.nom} km {p.s_m / 1000:.2f}")
+            w.type = p.type
+            gpx.waypoints.append(w)
+    return gpx.to_xml()
+
+
 def rendre(requete: dict) -> dict:
     session = ETAT.sessions.get(requete.get("session", ""))
     if session is None:
         raise ErreurRequete("session expirée : relancez l'analyse")
     cfg, avert = _config(requete.get("config"))
-    instructions = generer_instructions(session.etapes, cfg)
-    instructions, ignorees = appliquer(instructions, session.etapes, requete.get("modifications"), cfg)
-    origines = {e.nom: (float(e.trace.lat.mean()), float(e.trace.lon.mean())) for e in session.etapes}
+    points = points_carte(requete.get("modifications"))
+    etapes, a = _avec_points(session, points, cfg)
+    avert += a
+    instructions = generer_instructions(etapes, cfg)
+    instructions, ignorees = appliquer(instructions, etapes, requete.get("modifications"), cfg)
+    origines = {e.nom: (float(e.trace.lat.mean()), float(e.trace.lon.mean())) for e in etapes}
     resultat = {
         "analyse_perimee": empreinte_analyse(cfg) != session.empreinte,
         "cases": [_case(i, origines) for i in instructions],
+        "points": [{"id": p.source.split(":", 1)[1], "etape": p.etape if p.s_m is None else
+                    next(e.nom for e in etapes if p in e.pois),
+                    "km": None if p.s_m is None else round(p.s_m / 1000, 3)} for p in points],
     }
     if requete.get("pdf", True):
-        _, pages = paginer(session.etapes, instructions, cfg)
+        _, pages = paginer(etapes, instructions, cfg)
         with tempfile.TemporaryDirectory(prefix="roadbook_") as tmp:
             chemin = Path(tmp) / "roadbook.pdf"
             attribution = "Routes © contributeurs OpenStreetMap (ODbL)" if session.osm else ""
-            nb_pages, a = generer_pdf(session.etapes, instructions, cfg, chemin, attribution)
+            nb_pages, a = generer_pdf(etapes, instructions, cfg, chemin, attribution)
             resultat["revision"] = session.garder_pdf(chemin.read_bytes())
         resultat["pages"] = nb_pages
         resultat["apercu_images"] = pdfium is not None
@@ -238,7 +328,7 @@ def rendre(requete: dict) -> dict:
         avert += a
     tous = session.avertissements + avert + ignorees
     resultat["avertissements"] = tous
-    resultat["rapport"] = rapport(tous, instructions, session.etapes, cfg)
+    resultat["rapport"] = rapport(tous, instructions, etapes, cfg)
     if requete.get("csv"):
         with tempfile.TemporaryDirectory(prefix="roadbook_") as tmp:
             chemin = Path(tmp) / "instructions.csv"
@@ -276,6 +366,22 @@ class Gestionnaire(BaseHTTPRequestHandler):
         self._envoyer(code, json.dumps(donnees, ensure_ascii=False, default=str).encode("utf-8"),
                       "application/json; charset=utf-8")
 
+    TYPES_STATIQUES = {".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
+                       ".png": "image/png"}
+
+    def _statique(self, chemin: str) -> None:
+        """Bibliothèques livrées avec l'interface (Leaflet), sans accès à Internet."""
+        morceaux = [m for m in chemin.split("/") if m]
+        type_ = self.TYPES_STATIQUES.get(Path(chemin).suffix)
+        if type_ is None or any(m in ("..", ".") or "\\" in m for m in morceaux):
+            self._json(404, {"erreur": "introuvable"})
+            return
+        fichier = resources.files("roadbook").joinpath("web", *morceaux)
+        if not fichier.is_file():
+            self._json(404, {"erreur": "introuvable"})
+            return
+        self._envoyer(200, fichier.read_bytes(), type_, {"Cache-Control": "public, max-age=86400"})
+
     def do_GET(self):
         url = urlparse(self.path)
         params = {k: v[0] for k, v in parse_qs(url.query).items()}
@@ -287,6 +393,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
                                  "apercu_images": pdfium is not None})
             elif url.path == "/api/exemple":
                 self._json(200, _exemple())
+            elif url.path.startswith("/vendor/"):
+                self._statique(url.path)
             elif url.path in ("/api/pdf", "/api/page"):
                 session = ETAT.sessions.get(params.get("session", ""))
                 if session is None:
@@ -327,6 +435,10 @@ class Gestionnaire(BaseHTTPRequestHandler):
                                    etapes=[_carte(e) for e in session.etapes])
                 elif self.path == "/api/rendu":
                     reponse = rendre(requete)
+                elif self.path == "/api/accrocher":
+                    reponse = accrocher(requete)
+                elif self.path == "/api/gpx":
+                    reponse = {"gpx": exporter_gpx(requete)}
                 elif self.path == "/api/config-yaml":
                     cfg, _ = _config(requete.get("config"))
                     reponse = {"yaml": yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False)}

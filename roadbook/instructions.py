@@ -315,7 +315,7 @@ def rattacher_pois(etapes: list[Etape], pois: list[PointInteret], cal: dict) -> 
     par_nom = {e.nom: e for e in etapes}
     for p in pois:
         nom = p.description or p.code or p.source
-        if not p.description and p.type not in ("depart", "arrivee"):
+        if not p.description and not p.code and p.type not in ("depart", "arrivee"):
             avert.append(f"POI {p.source} ({libelles.TYPES_POI[p.type]}) sans description")
         if p.km is not None:
             etape = par_nom.get(p.etape) if p.etape else (etapes[0] if len(etapes) == 1 else None)

@@ -106,3 +106,43 @@ def test_erreurs_lisibles(url):
     assert code == 400 and "GPX illisible" in d["erreur"]
     code, d = appel(url, "/api/analyser", {**fichiers(), "config": {"affichage": {"format": "a3"}}})
     assert code == 400 and "format" in d["erreur"]
+
+
+def test_checkpoints_poses_sur_la_carte(url):
+    code, d = appel(url, "/api/analyser", {**fichiers(), "config": {}})
+    assert code == 200
+    e1 = d["etapes"][0]
+    lat, lon = e1["latlon"][len(e1["latlon"]) // 3]
+    # un clic à ~50 m de la trace s'accroche dessus
+    code, a = appel(url, "/api/accrocher", {"session": d["session"], "lat": lat + 0.0004, "lon": lon})
+    assert code == 200 and a["etape"] == e1["nom"] and a["ecart_m"] < 60
+    points = [
+        {"id": "a1", "type": "controle", "code": "cp9", "description": "Tampon", **a},
+        {"id": "a2", "type": "danger", "niveau": 3, "description": "Ornière", "lat": a["lat"], "lon": a["lon"],
+         "etape": a["etape"], "km": a["km"] + 1.0},
+    ]
+    code, r = appel(url, "/api/rendu", {"session": d["session"], "modifications": {"points": points}})
+    assert code == 200, r
+    cp = next(c for c in r["cases"] if "CP9" in c["controle"])
+    assert "Tampon" in cp["notes"]
+    dz = next(c for c in r["cases"] if "Ornière" in c["notes"])
+    assert dz["danger"] == 3
+    assert [p["km"] for p in r["points"]] == pytest.approx([a["km"], a["km"] + 1.0], abs=0.001)
+    # la session d'origine n'est pas modifiée : sans les points, ils disparaissent
+    code, r2 = appel(url, "/api/rendu", {"session": d["session"], "pdf": False})
+    assert not any("CP9" in c["controle"] for c in r2["cases"])
+    # export GPX : trace + points
+    code, g = appel(url, "/api/gpx", {"session": d["session"], "modifications": {"points": points}})
+    assert code == 200 and g["gpx"].count("<trk>") == 2 and "<name>CP9</name>" in g["gpx"]
+    # trop loin de la trace
+    code, err = appel(url, "/api/accrocher", {"session": d["session"], "lat": lat + 1, "lon": lon})
+    assert code == 400 and "trop loin" in err["erreur"]
+
+
+def test_bibliotheques_livrees(url):
+    code, js = appel(url, "/vendor/leaflet/leaflet.js")
+    assert code == 200 and b"Leaflet" in js[:500]
+    code, _ = appel(url, "/vendor/leaflet/images/layers.png")
+    assert code == 200
+    code, _ = appel(url, "/vendor/../serveur.py")
+    assert code == 404
