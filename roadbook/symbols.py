@@ -98,12 +98,28 @@ def demi_tour(c, b: Boite, angle: float) -> None:
     _fleche(c, b.cx + s * r, haut, b.cx + s * r, b.cy - b.L * 0.55, b.trait)
 
 
-def rond_point(c, b: Boite, angle: float, sens_circulation: str = "droite") -> None:
+def autres_routes(c, b: Boite, angles, depart: float = 0.0) -> None:
+    """Routes du carrefour non empruntées : traits fins depuis le centre (ou l'anneau)."""
+    c.setStrokeColor(black)
+    c.setLineWidth(max(0.9, b.trait * 0.42))
+    c.setLineCap(0)
+    for a in angles:
+        if abs((a + 180) % 360 - 180) > 168:
+            continue  # confondue avec la branche d'arrivée
+        c.line(*b.point(a, depart), *b.point(a, b.L * 0.92))
+
+
+def rond_point(c, b: Boite, angle: float, sens_circulation: str = "droite", autres=(),
+               position: float | None = None) -> None:
+    """Rond-point ; ``position`` = emplacement de la sortie sur l'anneau (défaut : angle)."""
     r = b.L * 0.38
     # anneau complet en trait fin
     c.setStrokeColor(black)
     c.setLineWidth(max(0.8, b.trait * 0.35))
     c.circle(b.cx, b.cy, r, stroke=1, fill=0)
+    autres_routes(c, b, autres, depart=r)
+    if position is not None:
+        angle = position
     _entree(c, b, jusqu_a=r)
     # chemin parcouru sur l'anneau (angles ReportLab : degrés, antihoraire depuis +x)
     phi = 90 - angle
@@ -239,11 +255,18 @@ def panneau_stop(c, b: Boite) -> None:
 
 
 def dessiner_schema(c, x, y, w, h, type_: str, angle: float | None = None, pois=(),
-                    sens_circulation: str = "droite", couleur_controle=black, couleur_danger=black) -> None:
-    """Dessine le schéma complet d'une case dans le rectangle (x, y, w, h)."""
+                    sens_circulation: str = "droite", couleur_controle=black, couleur_danger=black,
+                    branches=(), position_sortie: float | None = None) -> None:
+    """Dessine le schéma complet d'une case dans le rectangle (x, y, w, h).
+
+    ``branches`` : autres routes du carrefour (angle relatif à la direction
+    d'arrivée, 0 = tout droit, + = à droite), connues grâce à OpenStreetMap.
+    """
     b = Boite(x, y, w, h)
     types_poi = {p.type for p in pois}
     c.saveState()
+    if branches and type_ != "rond_point":
+        autres_routes(c, b, branches)
     if "passage_niveau" in types_poi:
         voie_ferree(c, b)
     if "carrefour" in types_poi:
@@ -253,7 +276,7 @@ def dessiner_schema(c, x, y, w, h, type_: str, angle: float | None = None, pois=
     elif type_ == "demi_tour":
         demi_tour(c, b, angle or 180.0)
     elif type_ == "rond_point":
-        rond_point(c, b, angle or 0.0, sens_circulation)
+        rond_point(c, b, angle or 0.0, sens_circulation, branches, position_sortie)
     elif type_ == "depart":
         depart(c, b)
     elif type_ == "arrivee":

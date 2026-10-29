@@ -102,7 +102,8 @@ def ajuster_texte(blocs: list[tuple[str, str, float]], largeur: float, hauteur: 
 
 
 class RenduPDF:
-    def __init__(self, cfg: dict, gab: Gabarit, pages: list[Page]):
+    def __init__(self, cfg: dict, gab: Gabarit, pages: list[Page], attribution: str = ""):
+        self.attribution = attribution
         self.cfg = cfg
         self.aff = cfg["affichage"]
         self.gab = gab
@@ -194,6 +195,8 @@ class RenduPDF:
         y = g.marge
         self.texte(c, page.largeur / 2, y, str(page.numero), GRAS, 10 * self.e, align="c")
         self.texte(c, g.marge, y, f"roadbook {__version__}", POLICE, 6, Color(0.5, 0.5, 0.5))
+        if self.attribution:
+            self.texte(c, page.largeur - g.marge, y, self.attribution, POLICE, 6, Color(0.5, 0.5, 0.5), "d")
 
     def page_cases(self, c, page: Page) -> None:
         g, e = self.gab, self.e
@@ -258,7 +261,8 @@ class RenduPDF:
 
         # schéma
         dessiner_schema(c, x0 + c1 + 1 * mm, y + 1 * mm, c2 - 2 * mm, hc - 2 * mm, instr.type, instr.angle,
-                        instr.pois, self.cfg["calcul"]["sens_circulation"], coul.controle, coul.danger)
+                        instr.pois, self.cfg["calcul"]["sens_circulation"], coul.controle, coul.danger,
+                        instr.branches, instr.position_sortie)
 
         # commentaires
         marge_t = 2 * mm
@@ -511,10 +515,11 @@ class RenduPDF:
         self.pied(c, page)
 
 
-def generer_pdf(etapes, instructions, cfg: dict, chemin: str | Path) -> tuple[int, list[str]]:
+def generer_pdf(etapes, instructions, cfg: dict, chemin: str | Path,
+                attribution: str = "") -> tuple[int, list[str]]:
     """Écrit le PDF ; retourne (nombre de pages, avertissements de mise en page)."""
     gab, pages = paginer(etapes, instructions, cfg)
-    rendu = RenduPDF(cfg, gab, pages)
+    rendu = RenduPDF(cfg, gab, pages, attribution)
     rendu.generer(chemin)
     return len(pages), rendu.avertissements
 

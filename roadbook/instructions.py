@@ -48,6 +48,14 @@ class Manoeuvre:
     lim_avant: float = -math.inf
     lim_apres: float = math.inf
     remarques: list[str] = field(default_factory=list)
+    # renseignés par l'analyse OpenStreetMap
+    source: str = "trace"  # trace | osm
+    branches: list[float] = field(default_factory=list)  # autres routes (angle relatif, 0 = tout droit)
+    position_sortie: float | None = None  # rond-points : position de la sortie sur l'anneau
+    sortie_num: int | None = None
+    route: str = ""  # route empruntée en sortie (numéro ou nom)
+    direction: str = ""  # panneau de direction (tag destination)
+    notes: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -70,6 +78,9 @@ class Instruction:
     ele: float | None = None
     pente_pct: float | None = None
     remarques: list[str] = field(default_factory=list)  # pour le rapport
+    branches: list[float] = field(default_factory=list)
+    position_sortie: float | None = None
+    sortie_num: int | None = None
 
     @property
     def est_controle(self) -> bool:
@@ -346,11 +357,26 @@ def rattacher_pois(etapes: list[Etape], pois: list[PointInteret], cal: dict) -> 
 
 def _description_manoeuvre(m: Manoeuvre, cal: dict, style: str) -> tuple[str, str | None]:
     if m.type == "rond_point":
-        return libelles.texte_rond_point(m.angle, style), None
+        return libelles.texte_rond_point(m.angle, style, m.sortie_num), None
     if m.type == "demi_tour":
         return libelles.texte_demi_tour(style), None
+    if abs(m.angle) < cal["seuil_virage_deg"]:
+        # carrefour OSM traversé tout droit
+        return libelles.texte_tout_droit(style), None
     classe = classe_angle(m.angle, cal["tranches_angle_deg"])
     return libelles.texte_virage(classe, 1 if m.angle > 0 else -1, style), classe
+
+
+def _notes_manoeuvre(m: Manoeuvre | None, cal: dict) -> list[str]:
+    if m is None:
+        return []
+    notes = []
+    if m.route:
+        tout_droit = m.type == "virage" and abs(m.angle) < cal["seuil_virage_deg"]
+        notes.append(f"{'SVE' if tout_droit else 'SUR'} {m.route}")
+    if m.direction:
+        notes.append(f"DIR. {m.direction}")
+    return notes + m.notes
 
 
 def generer_instructions(etapes: list[Etape], cfg: dict) -> list[Instruction]:
@@ -434,13 +460,16 @@ def generer_instructions(etapes: list[Etape], cfg: dict) -> list[Instruction]:
                 angle=m.angle if m else None,
                 classe=classe,
                 cap_sortie=cap,
-                notes=[p.description for p in l["pois"] if p.description],
+                notes=_notes_manoeuvre(m, cal) + [p.description for p in l["pois"] if p.description],
                 pois=l["pois"],
                 lat=lat,
                 lon=lon,
                 ele=ele,
                 pente_pct=pente,
                 remarques=list(m.remarques) if m else [],
+                branches=list(m.branches) if m else [],
+                position_sortie=m.position_sortie if m else None,
+                sortie_num=m.sortie_num if m else None,
             )
             if pente is not None and abs(pente) >= cal["seuil_pente_pct"] and aff["afficher_pente"]:
                 instr.notes.append(f"PENTE {pente:+.0f} %")
@@ -454,14 +483,34 @@ def generer_instructions(etapes: list[Etape], cfg: dict) -> list[Instruction]:
     return resultat
 
 
-def analyser(traces, pois: list[PointInteret], cfg: dict) -> tuple[list[Etape], list[Instruction], list[str]]:
-    """Chaîne complète : traces brutes -> étapes détectées -> instructions."""
+def reechantillonner_traces(traces, cfg: dict) -> list[TraceEchantillonnee]:
+    pas = cfg["calcul"]["pas_reechantillonnage_m"]
+    return [reechantillonner(t.lat, t.lon, t.ele, pas) for t in traces]
+
+
+def analyser(traces, pois: list[PointInteret], cfg: dict, reseau=None,
+             echantillons: list[TraceEchantillonnee] | None = None,
+             ) -> tuple[list[Etape], list[Instruction], list[str]]:
+    """Chaîne complète : traces brutes -> étapes détectées -> instructions.
+
+    ``reseau`` (facultatif) : réseau OpenStreetMap ; les carrefours qu'il
+    contient remplacent les virages déduits de la seule forme de la trace.
+    """
     cal = cfg["calcul"]
     avert: list[str] = []
     etapes: list[Etape] = []
-    for t in traces:
-        tr = reechantillonner(t.lat, t.lon, t.ele, cal["pas_reechantillonnage_m"])
+    pois = list(pois)
+    echantillons = echantillons or reechantillonner_traces(traces, cfg)
+    for t, tr in zip(traces, echantillons):
         manoeuvres, remarques = detecter_manoeuvres(tr, cal)
+        if reseau is not None:
+            from .carrefours import integrer_osm
+
+            manoeuvres, pois_osm, rem_osm = integrer_osm(tr, manoeuvres, reseau, cfg)
+            for p in pois_osm:
+                p.etape = t.nom
+            pois += pois_osm
+            remarques += rem_osm
         etapes.append(Etape(t.nom, tr, manoeuvres, remarques=remarques))
         # trace bruitée : la longueur brute dépasse nettement la longueur lissée
         lisse = moyenne_glissante(tr.lat, 5), moyenne_glissante(tr.lon, 5)

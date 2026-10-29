@@ -46,6 +46,51 @@ Chaque génération produit :
   UTF-8 avec BOM : s'ouvre directement dans Excel en français), avec heure
   de passage estimée.
 
+## Mode route : carrefours OpenStreetMap
+
+Sur route, la forme de la trace ne suffit pas : il faut savoir où sont les
+carrefours. Avec `--osm`, l'outil télécharge le réseau routier le long de la
+trace (API Overpass, couloir de 40 m) et en déduit :
+
+* **les carrefours empruntés**, avec l'angle exact et **les autres routes du
+  carrefour dessinées en trait fin** sur le schéma ;
+* **le numéro de sortie des rond-points** (« RP 3E SORTIE »), en comptant les
+  sorties autorisées : une branche à sens unique qui ne fait qu'entrer sur
+  l'anneau n'est pas comptée ;
+* **la route prise** (« SUR D12 », numéro ou à défaut nom de rue) et le panneau
+  de direction quand OSM le connaît (« DIR. VALENCE ») ;
+* **les feux** (« FEUX »), et en cases automatiques les **stops**, **passages à
+  niveau** et **stations-service** proches de la trace.
+
+```bash
+roadbook genere trace.gpx -c config.yaml --osm -o roadbook.pdf
+```
+
+Les réponses Overpass sont gardées en cache (`%LOCALAPPDATA%\roadbook\osm`
+sous Windows, `~/.cache/roadbook/osm` ailleurs) : une fois téléchargé, le road
+book se regénère sans connexion. On peut aussi travailler entièrement hors
+ligne avec un export du réseau : `--osm-fichier zone.osm` (bouton « Exporter »
+d'openstreetmap.org, JOSM, ou réponse Overpass `.json` ; `.bz2`/`.gz` acceptés).
+
+Quels carrefours ont une case (`osm.carrefours_td`) :
+
+* `importants` (défaut) : quand on tourne, quand on croise une route plus
+  importante que la sienne, ou quand une autre branche part dans une direction
+  proche (risque de confusion). On n'a pas de case quand on suit simplement
+  sa route et que les rues croisées sont plus petites ;
+* `tous` : chaque carrefour où l'on a le choix ;
+* `aucun` : seulement quand on change de direction.
+
+Sur les portions couvertes par OSM, les virages déduits de la seule forme de
+la trace (courbes, lacets sans carrefour) sont retirés
+(`osm.virages_hors_carrefour: true` pour les garder). Hors réseau (pistes non
+cartographiées), le calcul à partir de la trace reprend la main, dans le même
+road book. Les deux modes se mélangent donc naturellement sur un rallye
+route + piste.
+
+Le PDF porte la mention « Routes © contributeurs OpenStreetMap (ODbL) »
+exigée par la licence des données.
+
 ## Entrées
 
 **GPX** : chaque `<trk>` est une étape (ou toutes bout à bout avec
@@ -116,9 +161,15 @@ et pourquoi :
 
 ## Limites connues
 
-* Sans fond de carte, seuls les **changements de direction** sont détectés :
+* Sans `--osm`, seuls les **changements de direction** sont détectés :
   un carrefour traversé tout droit, un nom de route ou un numéro de sortie de
   rond-point doivent venir du CSV de POI.
+* Avec `--osm`, la qualité dépend de la carte : route manquante, sens unique
+  ou rond-point mal saisi dans OSM donnent une case fausse ou absente. Le
+  rapport indique combien de carrefours OSM ont été retenus par étape.
+* Si la trace GPX est décalée de plus de 12 m de la route (trace dessinée à la
+  main, GPS imprécis), les carrefours ne sont pas reconnus : augmenter
+  `osm.tolerance_m`.
 * La **1re sortie à droite** d'un rond-point à entrée évasée ne parcourt
   presque pas l'anneau : elle apparaît comme un simple « AD ».
 * Une chicane très serrée (rayon < 35 m, droite-gauche-droite) est vue comme
@@ -135,6 +186,8 @@ et pourquoi :
 | `roadbook/poi.py` | points d'intérêt (waypoints, CSV) |
 | `roadbook/geometry.py` | distances, caps, rééchantillonnage, projection |
 | `roadbook/instructions.py` | détection des virages/rond-points, génération des instructions |
+| `roadbook/osm.py` | réseau OpenStreetMap : Overpass, cache, fichiers .osm/.json |
+| `roadbook/carrefours.py` | carrefours et rond-points OSM empruntés par la trace |
 | `roadbook/libelles.py` | textes français |
 | `roadbook/symbols.py` | pictogrammes vectoriels |
 | `roadbook/layout.py` | formats et pagination |
@@ -143,5 +196,6 @@ et pourquoi :
 | `roadbook/cli.py` | ligne de commande |
 
 Tests : `pytest` (ligne droite, carré, rond-points synthétiques, distance
-géodésique, PDF et CLI sur la trace d'exemple). La trace d'exemple se
+géodésique, PDF et CLI sur la trace d'exemple, carrefours OSM sur un réseau
+synthétique et sur un extrait OSM réel). La trace d'exemple se
 régénère avec `python examples/generer_exemple.py`.

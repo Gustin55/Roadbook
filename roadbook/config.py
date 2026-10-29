@@ -76,6 +76,28 @@ DEFAUTS: dict[str, Any] = {
         "numerotation_pas": 1,
         "depart_arrivee": True,  # cases « DÉPART » et « ARRIVÉE »
     },
+    "osm": {
+        "actif": False,  # équivalent de l'option --osm (téléchargement Overpass)
+        "fichiers": [],  # exports .osm / .osm.bz2 / Overpass .json utilisés hors ligne
+        "serveurs": [
+            "https://overpass-api.de/api/interpreter",
+            "https://overpass.kumi.systems/api/interpreter",
+        ],
+        "rayon_requete_m": 40.0,  # largeur du couloir téléchargé autour de la trace
+        "tolerance_m": 12.0,  # écart max entre la trace et un carrefour emprunté
+        "longueur_branche_m": 20.0,  # longueur des branches comparées à la trace
+        # tous : chaque carrefour où l'on a le choix ; importants : on ignore ceux où
+        # l'on suit la route évidente ; aucun : seulement quand on tourne
+        "carrefours_td": "importants",
+        "fusion_carrefours_m": 25.0,  # carrefours complexes (plusieurs noeuds) regroupés
+        "virages_hors_carrefour": False,  # garder les virages de la trace sur route sans carrefour
+        "poi_auto": True,  # feux, stops, passages à niveau, stations-service
+        "types_ignores": [
+            "footway", "path", "cycleway", "steps", "bridleway", "pedestrian", "corridor",
+            "platform", "construction", "proposed", "elevator", "via_ferrata", "bus_stop", "raceway",
+        ],
+        "services_ignores": ["driveway", "parking_aisle", "drive-through", "emergency_access"],
+    },
     # Abréviations appliquées seulement quand un texte ne tient pas dans sa case.
     "abreviations": {
         "piste principale": "PP",
@@ -139,6 +161,8 @@ def _valider(cfg: dict) -> None:
         raise ErreurConfig("calcul.tranches_angle_deg attend 3 bornes croissantes")
     if cal["pas_reechantillonnage_m"] <= 0:
         raise ErreurConfig("calcul.pas_reechantillonnage_m doit être positif")
+    if cfg["osm"]["carrefours_td"] not in ("tous", "importants", "aucun"):
+        raise ErreurConfig("osm.carrefours_td doit valoir tous, importants ou aucun")
     if cfg["epreuve"]["decoupage_etapes"] not in ("par_trace", "unique"):
         raise ErreurConfig("epreuve.decoupage_etapes doit valoir par_trace ou unique")
 

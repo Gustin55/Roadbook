@@ -17,7 +17,8 @@ from . import __version__
 from .config import DEFAUTS, ErreurConfig, charger_config
 from .export import exporter_csv, rapport, table_texte
 from .gpx_loader import charger_gpx
-from .instructions import analyser
+from .instructions import analyser, reechantillonner_traces
+from .osm import ErreurOSM, charger_reseau
 from .poi import charger_csv
 
 
@@ -32,16 +33,25 @@ def _preparer(args):
         extra, a = charger_csv(chemin)
         pois += extra
         avert += a
-    etapes, instructions, a = analyser(donnees.traces, pois, cfg)
-    return cfg, etapes, instructions, avert + a
+    echantillons = reechantillonner_traces(donnees.traces, cfg)
+    reseau = None
+    fichiers_osm = list(cfg["osm"]["fichiers"]) + list(args.osm_fichier or [])
+    en_ligne = bool(args.osm or cfg["osm"]["actif"])
+    if en_ligne or fichiers_osm:
+        cache = Path(args.osm_cache) if args.osm_cache else None
+        reseau = charger_reseau(echantillons, cfg, fichiers_osm, en_ligne, cache, journal=print)
+        print(f"OpenStreetMap : {len(reseau.voies)} voies chargées")
+    etapes, instructions, a = analyser(donnees.traces, pois, cfg, reseau, echantillons)
+    return cfg, etapes, instructions, avert + a, reseau is not None
 
 
 def cmd_genere(args) -> int:
     from .render_pdf import generer_pdf
 
-    cfg, etapes, instructions, avert = _preparer(args)
+    cfg, etapes, instructions, avert, osm = _preparer(args)
     sortie = Path(args.sortie or Path(args.gpx).with_suffix(".pdf"))
-    nb_pages, a = generer_pdf(etapes, instructions, cfg, sortie)
+    attribution = "Routes © contributeurs OpenStreetMap (ODbL)" if osm else ""
+    nb_pages, a = generer_pdf(etapes, instructions, cfg, sortie, attribution)
     avert += a
     print(f"PDF : {sortie} ({nb_pages} pages, {len(instructions)} cases)")
     if args.csv:
@@ -58,7 +68,7 @@ def cmd_genere(args) -> int:
 
 
 def cmd_instructions(args) -> int:
-    cfg, etapes, instructions, avert = _preparer(args)
+    cfg, etapes, instructions, avert, _ = _preparer(args)
     print(table_texte(instructions, cfg))
     print()
     print(rapport(avert, instructions, etapes, cfg))
@@ -82,6 +92,11 @@ def construire_parseur() -> argparse.ArgumentParser:
         sp.add_argument("-c", "--config", help="fichier de configuration YAML")
         sp.add_argument("-p", "--poi", action="append", help="CSV de points d'intérêt (option répétable)")
         sp.add_argument("--csv", help="exporte aussi les instructions en CSV")
+        sp.add_argument("--osm", action="store_true",
+                        help="carrefours, rond-points et noms de routes depuis OpenStreetMap (Overpass, en ligne)")
+        sp.add_argument("--osm-fichier", action="append",
+                        help="réseau OSM hors ligne : .osm, .osm.bz2 ou Overpass .json (option répétable)")
+        sp.add_argument("--osm-cache", help="dossier du cache Overpass (défaut : cache utilisateur)")
 
     g = sous.add_parser("genere", help="génère le PDF")
     communs(g)
@@ -111,6 +126,10 @@ def main(argv: list[str] | None = None) -> int:
     args = construire_parseur().parse_args(argv)
     try:
         return args.func(args)
+    except ErreurOSM as exc:
+        print(f"Erreur OpenStreetMap : {exc}\nSans connexion, utilisez --osm-fichier avec un export .osm.",
+              file=sys.stderr)
+        return 3
     except (ErreurConfig, FileNotFoundError, ValueError) as exc:
         print(f"Erreur : {exc}", file=sys.stderr)
         return 2

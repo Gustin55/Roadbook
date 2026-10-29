@@ -43,7 +43,17 @@ def direction_sortie(angle: float) -> str:
     return "td"
 
 
-def texte_rond_point(angle: float, style: str) -> str:
+def ordinal(n: int, style: str) -> str:
+    if style == "abrege":
+        return "1RE" if n == 1 else f"{n}E"
+    return "1re" if n == 1 else f"{n}e"
+
+
+def texte_rond_point(angle: float, style: str, sortie_num: int | None = None) -> str:
+    if sortie_num:
+        if style == "abrege":
+            return f"RP {ordinal(sortie_num, style)} SORTIE"
+        return f"Rond-point, {ordinal(sortie_num, style)} sortie"
     d = direction_sortie(angle)
     if style == "abrege":
         return {"droite": "RP SORTIE AD", "gauche": "RP SORTIE AG", "td": "RP SORTIE TD",
